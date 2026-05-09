@@ -11,14 +11,15 @@ const DraggableTextBox = ({
   const boxRef = useRef(null);
   const textRef = useRef(null);
 
+  // Tự động tính toán chiều rộng - CHỈ CHẠY KHI CÓ setBoxStyle
   useEffect(() => {
-    if (textRef.current && !dragState.current.type) {
+    if (textRef.current && setBoxStyle && !dragState.current.type) {
       const width = textRef.current.offsetWidth + 20;
       if (width !== boxStyle.width) {
         setBoxStyle(prev => ({ ...prev, width: Math.min(1000, Math.max(60, width)) }));
       }
     }
-  }, [value, boxStyle.fontSize, boxStyle.fontWeight]);
+  }, [value, boxStyle.fontSize, boxStyle.fontWeight, setBoxStyle]);
 
   const getCanvasCoords = (clientX, clientY) => {
     const canvas = boxRef.current?.closest('[data-canvas="true"]');
@@ -31,9 +32,9 @@ const DraggableTextBox = ({
   };
 
   const startDrag = (e, type) => {
-    if (isExporting) return;
+    if (isExporting || !setBoxStyle) return;
     e.stopPropagation();
-    onSelect();
+    onSelect?.();
     const clientX = e.clientX || e.touches?.[0]?.clientX;
     const clientY = e.clientY || e.touches?.[0]?.clientY;
     const p = getCanvasCoords(clientX, clientY);
@@ -70,13 +71,12 @@ const DraggableTextBox = ({
   const showActiveState = isSelected && !isExporting;
   const handleSize = Math.max(14, 28 / (posterScale || 1)); 
 
-  // Hiệu ứng chữ Vàng Cam Gradient cực đẹp
   const textGradientStyle = {
     background: boxStyle.color === '#FFFF00' 
-      ? 'linear-gradient(to bottom, #FFFF00 20%, #FF9900 100%)' // Vàng cam Gold rực rỡ
+      ? 'linear-gradient(to bottom, #FFFF00 20%, #FF9900 100%)' 
       : 'none',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: boxStyle.color === '#FFFF00' ? 'transparent' : boxStyle.color,
+    WebkitBackgroundClip: boxStyle.color === '#FFFF00' ? 'text' : 'unset',
+    WebkitTextFillColor: boxStyle.color === '#FFFF00' ? 'transparent' : 'inherit',
   };
 
   return (
@@ -111,7 +111,7 @@ const DraggableTextBox = ({
           pointerEvents: 'none',
           fontFamily: 'inherit',
           lineHeight: 1.1,
-          filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))', // Bóng đổ mạnh để nổi bật
+          filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))',
           ...textGradientStyle
         }}
       >
@@ -159,7 +159,6 @@ const PosterPreview = ({
         </div>
       </div>
 
-      {/* ─── UI XEM TRƯỚC ─── */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0 z-30">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
