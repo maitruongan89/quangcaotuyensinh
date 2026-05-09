@@ -1,17 +1,16 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Loader2, Move } from 'lucide-react';
+import { Download, Loader2, Move, X } from 'lucide-react';
 
 /* ─── Draggable Text Box ─────────────────────────────────── */
 const DraggableTextBox = ({
   value, boxStyle, setBoxStyle,
-  posterScale, isSelected, onSelect, isExporting
+  posterScale, isSelected, onSelect, isExporting, showShadow
 }) => {
   const dragState = useRef({ type: 0 }); 
   const boxRef = useRef(null);
   const textRef = useRef(null);
 
-  // Tự động tính toán chiều rộng - CHỈ CHẠY KHI CÓ setBoxStyle
   useEffect(() => {
     if (textRef.current && setBoxStyle && !dragState.current.type) {
       const width = textRef.current.offsetWidth + 20;
@@ -25,9 +24,10 @@ const DraggableTextBox = ({
     const canvas = boxRef.current?.closest('[data-canvas="true"]');
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
+    const scale = posterScale || 1;
     return {
-      x: (clientX - rect.left) / (posterScale || 1),
-      y: (clientY - rect.top) / (posterScale || 1),
+      x: (clientX - rect.left) / scale,
+      y: (clientY - rect.top) / scale,
     };
   };
 
@@ -111,7 +111,7 @@ const DraggableTextBox = ({
           pointerEvents: 'none',
           fontFamily: 'inherit',
           lineHeight: 1.1,
-          filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))',
+          filter: showShadow ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.6))' : 'none',
           ...textGradientStyle
         }}
       >
@@ -142,7 +142,7 @@ const PosterPreview = ({
   isExporting, handleDownload,
   nameStyle, setNameStyle,
   phoneStyle, setPhoneStyle,
-  designMode
+  designMode, showShadow
 }) => {
   const [selectedBox, setSelectedBox] = useState(null);
   const scaledW = Math.round(1080 * previewScale);
@@ -150,42 +150,37 @@ const PosterPreview = ({
 
   return (
     <div className="relative w-full h-full flex flex-col bg-white overflow-hidden">
-      {/* ─── POSTER ẨN (Dùng để chụp ảnh chuẩn 1080x1350) ─── */}
-      <div style={{ position: 'absolute', left: '-9999px', top: 0, width: 1080, height: 1350 }}>
-        <div ref={exportRef} style={{ position: 'relative', width: 1080, height: 1350, backgroundColor: '#fff' }}>
+      {/* ─── POSTER ẨN (FIXED ĐỂ CHỐNG MẤT GÓC) ─── */}
+      <div style={{ position: 'fixed', left: '-5000px', top: 0, width: 1080, height: 1350, zIndex: -100, overflow: 'visible' }}>
+        <div ref={exportRef} style={{ position: 'relative', width: 1080, height: 1350, backgroundColor: '#fff', overflow: 'visible' }}>
           <img src={selectedTemplate?.image} crossOrigin="anonymous" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Export Base" />
-          <DraggableTextBox value={teacherName || 'Tên giáo viên'} boxStyle={nameStyle} posterScale={1} isExporting={true} />
-          <DraggableTextBox value={phone ? formatPhoneNumber(phone) : 'Số điện thoại'} boxStyle={phoneStyle} posterScale={1} isExporting={true} />
+          <DraggableTextBox value={teacherName || 'Tên giáo viên'} boxStyle={nameStyle} posterScale={1} isExporting={true} showShadow={showShadow} />
+          <DraggableTextBox value={phone ? formatPhoneNumber(phone) : 'Số điện thoại'} boxStyle={phoneStyle} posterScale={1} isExporting={true} showShadow={showShadow} />
         </div>
       </div>
 
+      {/* ─── UI XEM TRƯỚC ─── */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0 z-30">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
           <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
-             {isExporting ? 'Đang tạo ảnh...' : 'Xem trước'}
+             {isExporting ? 'Đang tạo bản xem trước...' : 'Thiết kế trực quan'}
           </h4>
         </div>
-        <button onClick={handleDownload} disabled={isExporting} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-blue-600/30 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
-          {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} XUẤT ẢNH PNG
-        </button>
       </div>
 
       <div className="flex-1 flex items-center justify-center bg-slate-100 relative overflow-hidden" style={{ touchAction: 'none' }}>
-        {designMode && !selectedBox && !isExporting && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-slate-900/90 text-white rounded-full text-[9px] font-bold shadow-2xl z-40">CHẠM VÀO CHỮ ĐỂ DI CHUYỂN</div>
-        )}
         {selectedTemplate ? (
-          <div style={{ width: scaledW, height: scaledH, position: 'relative', touchAction: 'none' }}>
+          <div style={{ width: scaledW, height: scaledH, position: 'relative', touchAction: 'none', boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, width: 1080, height: 1350, transform: `scale(${previewScale})`, transformOrigin: 'top left', background: '#fff', touchAction: 'none' }}>
               <div data-canvas="true" style={{ position: 'absolute', inset: 0, touchAction: 'none', backgroundColor: '#fff' }} onClick={() => setSelectedBox(null)}>
                 <img src={selectedTemplate.image} crossOrigin="anonymous" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview Base" />
-                <DraggableTextBox value={teacherName || 'Tên giáo viên'} boxStyle={nameStyle} setBoxStyle={setNameStyle} posterScale={previewScale} isSelected={selectedBox === 'name'} onSelect={() => setSelectedBox('name')} isExporting={isExporting} />
-                <DraggableTextBox value={phone ? formatPhoneNumber(phone) : 'Số điện thoại'} boxStyle={phoneStyle} setBoxStyle={setPhoneStyle} posterScale={previewScale} isSelected={selectedBox === 'phone'} onSelect={() => setSelectedBox('phone')} isExporting={isExporting} />
+                <DraggableTextBox value={teacherName || 'Tên giáo viên'} boxStyle={nameStyle} setBoxStyle={setNameStyle} posterScale={previewScale} isSelected={selectedBox === 'name'} onSelect={() => setSelectedBox('name')} isExporting={isExporting} showShadow={showShadow} />
+                <DraggableTextBox value={phone ? formatPhoneNumber(phone) : 'Số điện thoại'} boxStyle={phoneStyle} setBoxStyle={setPhoneStyle} posterScale={previewScale} isSelected={selectedBox === 'phone'} onSelect={() => setSelectedBox('phone')} isExporting={isExporting} showShadow={showShadow} />
               </div>
             </div>
           </div>
-        ) : <p className="text-xs font-bold text-slate-400">Đang tải...</p>}
+        ) : <p className="text-xs font-bold text-slate-400">Đang tải dữ liệu...</p>}
       </div>
     </div>
   );

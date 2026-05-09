@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import HeroForm from '@/components/HeroForm';
 import DesignPanel from '@/components/DesignPanel';
 import PosterPreview from '@/components/PosterPreview';
-import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X } from 'lucide-react';
+import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X, Download, Eye } from 'lucide-react';
 
 /* ─── Template Style Presets ─── */
 const DEFAULT_TEXT_COLOR = '#FFFF00'; 
@@ -61,6 +61,8 @@ export default function PosterGenerator() {
   const [isExporting, setIsExporting] = useState(false);
   const [previewScale, setPreviewScale] = useState(0.4);
   const [designMode, setDesignMode] = useState(false);
+  const [showShadow, setShowShadow] = useState(true);
+  const [exportImageUrl, setExportImageUrl] = useState(null); // URL ảnh cho Modal xem trước
   const [nameStyle, setNameStyle] = useState({ ...templates[0].defaultNameStyle });
   const [phoneStyle, setPhoneStyle] = useState({ ...templates[0].defaultPhoneStyle });
 
@@ -78,7 +80,7 @@ export default function PosterGenerator() {
       if (containerRef.current) {
         const h = containerRef.current.offsetHeight;
         const w = containerRef.current.offsetWidth;
-        const availH = h - 100; // Tăng khoảng cách đệm để không bị che
+        const availH = h - 120; 
         const availW = w - 40;
         const scale = Math.min(availH / 1350, availW / 1080);
         setPreviewScale(Math.max(0.1, scale));
@@ -100,31 +102,36 @@ export default function PosterGenerator() {
     setDesignMode(true);
   };
 
-  const handleDownload = async () => {
+  const handleGeneratePreview = async () => {
     if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ thông tin."); return; }
     setIsExporting(true);
     
-    // Đảm bảo ảnh base đã load xong trước khi chụp
     setTimeout(async () => {
       try {
         if (!exportRef.current) return;
         const dataUrl = await toPng(exportRef.current, { 
           width: 1080, 
           height: 1350, 
-          pixelRatio: 3, // Tăng độ nét lên mức tối đa
+          pixelRatio: 2, 
           cacheBust: true,
-          style: { transform: 'none' } // Loại bỏ mọi biến dạng khi chụp
+          style: { transform: 'none' }
         });
-        const link = document.createElement('a');
-        link.download = `poster-${teacherName.toLowerCase().replace(/\s+/g, '-')}.png`;
-        link.href = dataUrl;
-        link.click();
+        setExportImageUrl(dataUrl); // Hiển thị Modal xem trước
       } catch (err) { 
-        alert('Lỗi xuất ảnh. Hãy thử lại.'); 
+        alert('Lỗi tạo ảnh. Hãy thử lại.'); 
       } finally { 
         setIsExporting(false); 
       }
     }, 500);
+  };
+
+  const handleDownload = () => {
+    if (!exportImageUrl) return;
+    const link = document.createElement('a');
+    link.download = `poster-${teacherName.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.href = exportImageUrl;
+    link.click();
+    setExportImageUrl(null);
   };
 
   return (
@@ -133,7 +140,7 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 5.1 - Mai Trường An - 0905012131
+            Version 6.0 - Mai Trường An - 0905012131
           </span>
         </div>
 
@@ -142,16 +149,69 @@ export default function PosterGenerator() {
         <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start">
           <div className="w-full xl:col-span-4" style={{ order: designMode ? -1 : 0 }}>
             {designMode ? (
-              <DesignPanel teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} nameStyle={nameStyle} setNameStyle={setNameStyle} defaultNameStyle={selectedTemplate.defaultNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} defaultPhoneStyle={selectedTemplate.defaultPhoneStyle} onBack={() => setDesignMode(false)} onDownload={handleDownload} isExporting={isExporting} />
+              <DesignPanel 
+                teacherName={teacherName} setTeacherName={setTeacherName} 
+                phone={phone} setPhone={setPhone} 
+                nameStyle={nameStyle} setNameStyle={setNameStyle} 
+                defaultNameStyle={selectedTemplate.defaultNameStyle} 
+                phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} 
+                defaultPhoneStyle={selectedTemplate.defaultPhoneStyle} 
+                onBack={() => setDesignMode(false)} 
+                onDownload={handleGeneratePreview} 
+                isExporting={isExporting}
+                showShadow={showShadow}
+                setShowShadow={setShowShadow}
+              />
             ) : (
               <HeroForm teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} onStart={handleStartDesign} isExporting={isExporting} />
             )}
           </div>
-          <div ref={containerRef} className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[550px] sm:h-[700px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}>
-            <PosterPreview exportRef={exportRef} previewScale={previewScale} selectedTemplate={selectedTemplate} teacherName={teacherName} phone={phone} formatPhoneNumber={formatPhoneNumber} isExporting={isExporting} handleDownload={handleDownload} nameStyle={nameStyle} setNameStyle={setNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} designMode={designMode} />
+          <div ref={containerRef} className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[550px] sm:h-[750px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}>
+            <PosterPreview 
+              exportRef={exportRef} previewScale={previewScale} 
+              selectedTemplate={selectedTemplate} teacherName={teacherName} 
+              phone={phone} formatPhoneNumber={formatPhoneNumber} 
+              isExporting={isExporting} handleDownload={handleGeneratePreview} 
+              nameStyle={nameStyle} setNameStyle={setNameStyle} 
+              phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} 
+              designMode={designMode}
+              showShadow={showShadow}
+            />
           </div>
         </div>
       </div>
+
+      {/* ─── MODAL XEM TRƯỚC KẾT QUẢ TRƯỚC KHI TẢI ─── */}
+      {exportImageUrl && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b flex items-center justify-between bg-white sticky top-0 z-10">
+              <div>
+                <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-blue-600" /> KIỂM TRA KẾT QUẢ
+                </h3>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nếu ảnh chuẩn, hãy nhấn tải xuống</p>
+              </div>
+              <button onClick={() => setExportImageUrl(null)} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-auto p-4 bg-slate-200/50 flex items-center justify-center">
+              <img src={exportImageUrl} className="w-full h-auto shadow-2xl rounded-lg border-4 border-white" alt="Final Export" />
+            </div>
+
+            <div className="p-6 bg-white border-t flex flex-col gap-3">
+              <button onClick={handleDownload} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3 transition-transform active:scale-95">
+                <Download className="w-6 h-6" /> TẢI XUỐNG NGAY
+              </button>
+              <button onClick={() => setExportImageUrl(null)} className="w-full py-3 bg-slate-100 text-slate-500 rounded-xl text-sm font-bold">
+                Quay lại chỉnh sửa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -159,7 +219,7 @@ export default function PosterGenerator() {
 const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
   const stripRef = useRef(null);
   return (
-    <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
         <div className="flex items-center gap-2">
           <LayoutTemplate className="w-4 h-4 text-blue-600" />
