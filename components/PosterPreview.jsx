@@ -70,16 +70,15 @@ const DraggableTextBox = ({
   const showActiveState = isSelected && !isExporting;
   const handleSize = Math.max(14, 28 / posterScale); 
 
-  // Tạo hiệu ứng Gradient cho chữ
   const textGradientStyle = {
     background: boxStyle.color === '#FFFFFF' 
-      ? 'linear-gradient(to bottom, #FFFFFF 30%, #E2E8F0 100%)' // Trắng bạc
+      ? 'linear-gradient(to bottom, #FFFFFF 30%, #E2E8F0 100%)' 
       : boxStyle.color === '#FFFF00'
-        ? 'linear-gradient(to bottom, #FFFF00 30%, #FFA500 100%)' // Vàng cam Gold
+        ? 'linear-gradient(to bottom, #FFFF00 30%, #FFA500 100%)' 
         : 'none',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    textShadow: isExporting ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none', // Đổ bóng khi xuất ảnh
+    textShadow: isExporting ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
   };
 
   return (
@@ -114,7 +113,7 @@ const DraggableTextBox = ({
           pointerEvents: 'none',
           fontFamily: 'inherit',
           lineHeight: 1.1,
-          filter: 'drop-shadow(0px 3px 5px rgba(0,0,0,0.4))', // Đổ bóng cho chữ nổi bật trên nền xanh
+          filter: 'drop-shadow(0px 3px 5px rgba(0,0,0,0.4))',
           ...(boxStyle.color === '#FFFFFF' || boxStyle.color === '#FFFF00' ? textGradientStyle : {})
         }}
       >
@@ -150,7 +149,7 @@ const PosterPreview = ({
 }) => {
   const [selectedBox, setSelectedBox] = useState(null);
   const scaledW = Math.round(1080 * previewScale);
-  const scaledH = Math.round(1350 * posterScale || 1350 * previewScale);
+  const scaledH = Math.round(1350 * previewScale); // FIXED: Removed posterScale reference
 
   return (
     <div className="relative w-full h-full flex flex-col bg-white overflow-hidden">
@@ -171,7 +170,7 @@ const PosterPreview = ({
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-slate-900/90 text-white rounded-full text-[9px] font-bold shadow-2xl z-40">KÉO CHỮ ĐỂ DI CHUYỂN</div>
         )}
         {selectedTemplate ? (
-          <div style={{ width: scaledW, height: Math.round(1350 * previewScale), position: 'relative', touchAction: 'none' }}>
+          <div style={{ width: scaledW, height: scaledH, position: 'relative', touchAction: 'none' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, width: 1080, height: 1350, transform: `scale(${previewScale})`, transformOrigin: 'top left', background: '#fff', touchAction: 'none' }}>
               <div ref={posterRef} data-canvas="true" style={{ position: 'absolute', inset: 0, touchAction: 'none', backgroundColor: '#fff', overflow: 'visible' }} onClick={() => setSelectedBox(null)}>
                 <img src={selectedTemplate.image} crossOrigin="anonymous" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} alt="Poster Base" />
