@@ -8,7 +8,7 @@ import DesignPanel from '@/components/DesignPanel';
 import PosterPreview from '@/components/PosterPreview';
 import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X } from 'lucide-react';
 
-/* ─── Template Style Presets (MÀU CHỮ MẶC ĐỊNH: VÀNG GOLD) ─── */
+/* ─── Template Style Presets ─── */
 const DEFAULT_TEXT_COLOR = '#FFFF00'; 
 
 const STYLE_STACK_BOTTOM = {
@@ -64,7 +64,7 @@ export default function PosterGenerator() {
   const [nameStyle, setNameStyle] = useState({ ...templates[0].defaultNameStyle });
   const [phoneStyle, setPhoneStyle] = useState({ ...templates[0].defaultPhoneStyle });
 
-  const exportRef = useRef(null); // Ref cho Poster ẩn (Shadow Canvas)
+  const exportRef = useRef(null); 
   const containerRef = useRef(null);
 
   const handleSelectTemplate = (tpl) => {
@@ -103,38 +103,25 @@ export default function PosterGenerator() {
   const handleDownload = async () => {
     if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ thông tin."); return; }
     setIsExporting(true);
-    
-    // Đợi UI cập nhật
     setTimeout(async () => {
       try {
         if (!exportRef.current) return;
-        // Chụp cái Poster ẨN (luôn là 1080x1350, không bị mất góc)
-        const dataUrl = await toPng(exportRef.current, { 
-          width: 1080, 
-          height: 1350, 
-          pixelRatio: 2,
-          cacheBust: true
-        });
+        const dataUrl = await toPng(exportRef.current, { width: 1080, height: 1350, pixelRatio: 2, cacheBust: true });
         const link = document.createElement('a');
         link.download = `poster-${teacherName.toLowerCase().replace(/\s+/g, '-')}.png`;
         link.href = dataUrl;
         link.click();
-      } catch (err) { 
-        alert('Lỗi xuất ảnh. Hãy thử lại.'); 
-      } finally { 
-        setIsExporting(false); 
-      }
+      } catch (err) { alert('Lỗi xuất ảnh. Hãy thử lại.'); } finally { setIsExporting(false); }
     }, 300);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 bg-dots pt-20 pb-12 px-4 sm:px-6">
       <Header />
-      
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 5.0 - Mai Trường An (Final Fix)
+            Version - Mai Trường An - 0905012131
           </span>
         </div>
 
@@ -148,11 +135,7 @@ export default function PosterGenerator() {
               <HeroForm teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} onStart={handleStartDesign} isExporting={isExporting} />
             )}
           </div>
-
-          <div
-            ref={containerRef}
-            className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[520px] sm:h-[650px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}
-          >
+          <div ref={containerRef} className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[520px] sm:h-[650px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}>
             <PosterPreview exportRef={exportRef} previewScale={previewScale} selectedTemplate={selectedTemplate} teacherName={teacherName} phone={phone} formatPhoneNumber={formatPhoneNumber} isExporting={isExporting} handleDownload={handleDownload} nameStyle={nameStyle} setNameStyle={setNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} designMode={designMode} />
           </div>
         </div>
@@ -162,7 +145,6 @@ export default function PosterGenerator() {
 }
 
 const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
-  const [previewTpl, setPreviewTpl] = useState(null);
   const stripRef = useRef(null);
   return (
     <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -189,25 +171,6 @@ const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
           })}
         </div>
         <button onClick={() => stripRef.current?.scrollBy({ left: 240, behavior: 'smooth' })} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shadow-sm text-slate-400 hover:text-blue-600"><ChevronRight className="w-4 h-4" /></button>
-      </div>
-    </div>
-  );
-};
-
-const TemplatePreviewModal = ({ template, templates, onClose, onSelect, selectedTemplate }) => {
-  const [current, setCurrent] = useState(templates.findIndex(t => t.id === template.id));
-  const tpl = templates[current];
-  const isSelected = selectedTemplate?.id === tpl.id;
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="relative bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden max-w-sm w-full">
-        <div className="flex items-center justify-between px-4 py-3 border-b"><h3 className="text-sm font-black">{tpl.name}</h3><button onClick={onClose} className="p-1 text-slate-400"><X /></button></div>
-        <div className="relative bg-slate-100 flex items-center justify-center min-h-[400px]">
-          <img src={tpl.image} alt={tpl.name} className="w-full object-contain max-h-[500px]" />
-        </div>
-        <div className="p-4 flex gap-2">
-          <button onClick={() => { onSelect(tpl); onClose(); }} className={`flex-1 py-3 rounded-xl font-bold text-white bg-blue-600`}>Chọn mẫu này</button>
-        </div>
       </div>
     </div>
   );
