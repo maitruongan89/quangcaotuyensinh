@@ -12,8 +12,8 @@ import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X, Download, E
 const DEFAULT_TEXT_COLOR = '#FFFF00'; 
 
 const STYLE_STACK_BOTTOM = {
-  defaultNameStyle:  { left: 235, top: 1115, width: 440, height: 60, fontSize: 38, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
-  defaultPhoneStyle: { left: 235, top: 1212, width: 440, height: 70, fontSize: 52, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' }
+  defaultNameStyle:  { left: 235, top: 1105, width: 440, height: 60, fontSize: 38, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 235, top: 1202, width: 440, height: 70, fontSize: 52, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' }
 };
 const STYLE_SIDE_BY_SIDE = {
   defaultNameStyle:  { left: 105, top: 1042, width: 360, height: 55, fontSize: 32, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
@@ -140,7 +140,7 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 6.0 - Mai Trường An - 0905012131
+            Version 6.1 - Mai Trường An - 0905012131
           </span>
         </div>
 
