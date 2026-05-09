@@ -7,39 +7,46 @@ import HeroForm from '@/components/HeroForm';
 import DesignPanel from '@/components/DesignPanel';
 import PosterPreview, { DEFAULT_NAME_STYLE, DEFAULT_PHONE_STYLE } from '@/components/PosterPreview';
 
-/* ─── All 27 templates ─────────────────────────────────────── */
-const DEFAULT_TEACHER_BOX = { left: 180, top: 1100, width: 420, height: 60, fontSize: 36, color: '#003B8F', fontWeight: 900, align: 'center' };
-const DEFAULT_PHONE_BOX   = { left: 180, top: 1210, width: 420, height: 70, fontSize: 48, color: '#003B8F', fontWeight: 900, align: 'center' };
+/* ─── Template Style Presets ─────────────────────────────── */
+const STYLE_BOTTOM_CENTER = {
+  name:  { left: 180, top: 1100, width: 420, height: 60, fontSize: 36, color: '#003B8F', fontWeight: 900, align: 'center' },
+  phone: { left: 180, top: 1210, width: 420, height: 70, fontSize: 48, color: '#003B8F', fontWeight: 900, align: 'center' }
+};
+
+const STYLE_LEFT_ALIGNED = {
+  name:  { left: 100, top: 1120, width: 400, height: 60, fontSize: 34, color: '#003B8F', fontWeight: 900, align: 'left' },
+  phone: { left: 100, top: 1215, width: 400, height: 70, fontSize: 46, color: '#003B8F', fontWeight: 900, align: 'left' }
+};
 
 const templates = [
-  { id: 'mau-1', name: 'Mẫu 1',  image: '/templates/mau-1.png' },
-  { id: 'mau-2', name: 'Mẫu 2',  image: '/templates/mau-2.png' },
-  { id: 'c1',  name: 'Mẫu 3',  image: '/templates/ChatGPT Image 22_30_06 8 thg 5, 2026 (1).png' },
-  { id: 'c2',  name: 'Mẫu 4',  image: '/templates/ChatGPT Image 22_35_50 8 thg 5, 2026 (1).png' },
-  { id: 'c3',  name: 'Mẫu 5',  image: '/templates/ChatGPT Image 22_35_50 8 thg 5, 2026 (2).png' },
-  { id: 'c4',  name: 'Mẫu 6',  image: '/templates/ChatGPT Image 22_35_51 8 thg 5, 2026 (3).png' },
-  { id: 'c5',  name: 'Mẫu 7',  image: '/templates/ChatGPT Image 22_35_51 8 thg 5, 2026 (4).png' },
-  { id: 'c6',  name: 'Mẫu 8',  image: '/templates/ChatGPT Image 22_47_15 8 thg 5, 2026 (1).png' },
-  { id: 'c7',  name: 'Mẫu 9',  image: '/templates/ChatGPT Image 22_47_20 8 thg 5, 2026 (2).png' },
-  { id: 'c8',  name: 'Mẫu 10', image: '/templates/ChatGPT Image 22_47_21 8 thg 5, 2026 (3).png' },
-  { id: 'c9',  name: 'Mẫu 11', image: '/templates/ChatGPT Image 22_47_21 8 thg 5, 2026 (4).png' },
-  { id: 'c10', name: 'Mẫu 12', image: '/templates/ChatGPT Image 22_47_49 8 thg 5, 2026.png' },
-  { id: 'c11', name: 'Mẫu 13', image: '/templates/ChatGPT Image 22_48_04 8 thg 5, 2026.png' },
-  { id: 'c12', name: 'Mẫu 14', image: '/templates/ChatGPT Image 22_58_53 8 thg 5, 2026 (1).png' },
-  { id: 'c13', name: 'Mẫu 15', image: '/templates/ChatGPT Image 22_58_53 8 thg 5, 2026 (2).png' },
-  { id: 'c14', name: 'Mẫu 16', image: '/templates/ChatGPT Image 22_58_53 8 thg 5, 2026 (3).png' },
-  { id: 'c15', name: 'Mẫu 17', image: '/templates/ChatGPT Image 22_58_54 8 thg 5, 2026 (4).png' },
-  { id: 'c16', name: 'Mẫu 18', image: '/templates/ChatGPT Image 23_11_43 8 thg 5, 2026 (1).png' },
-  { id: 'c17', name: 'Mẫu 19', image: '/templates/ChatGPT Image 23_11_43 8 thg 5, 2026 (2).png' },
-  { id: 'c18', name: 'Mẫu 20', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (3).png' },
-  { id: 'c19', name: 'Mẫu 21', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (4).png' },
-  { id: 'c20', name: 'Mẫu 22', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (5).png' },
-  { id: 'c21', name: 'Mẫu 23', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (6).png' },
-  { id: 'c22', name: 'Mẫu 24', image: '/templates/ChatGPT Image 23_19_32 8 thg 5, 2026 (1).png' },
-  { id: 'c23', name: 'Mẫu 25', image: '/templates/ChatGPT Image 23_19_32 8 thg 5, 2026 (2).png' },
-  { id: 'c24', name: 'Mẫu 26', image: '/templates/ChatGPT Image 23_19_32 8 thg 5, 2026 (3).png' },
-  { id: 'c25', name: 'Mẫu 27', image: '/templates/ChatGPT Image 23_19_33 8 thg 5, 2026 (4).png' },
-].map(t => ({ ...t, teacherBox: DEFAULT_TEACHER_BOX, phoneBox: DEFAULT_PHONE_BOX }));
+  { id: 'mau-1', name: 'Mẫu 1',  image: '/templates/mau-1.png', ...STYLE_BOTTOM_CENTER },
+  { id: 'mau-2', name: 'Mẫu 2',  image: '/templates/mau-2.png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c1',  name: 'Mẫu 3',  image: '/templates/ChatGPT Image 22_30_06 8 thg 5, 2026 (1).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c2',  name: 'Mẫu 4',  image: '/templates/ChatGPT Image 22_35_50 8 thg 5, 2026 (1).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c3',  name: 'Mẫu 5',  image: '/templates/ChatGPT Image 22_35_50 8 thg 5, 2026 (2).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c4',  name: 'Mẫu 6',  image: '/templates/ChatGPT Image 22_35_51 8 thg 5, 2026 (3).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c5',  name: 'Mẫu 7',  image: '/templates/ChatGPT Image 22_35_51 8 thg 5, 2026 (4).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c6',  name: 'Mẫu 8',  image: '/templates/ChatGPT Image 22_47_15 8 thg 5, 2026 (1).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c7',  name: 'Mẫu 9',  image: '/templates/ChatGPT Image 22_47_20 8 thg 5, 2026 (2).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c8',  name: 'Mẫu 10', image: '/templates/ChatGPT Image 22_47_21 8 thg 5, 2026 (3).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c9',  name: 'Mẫu 11', image: '/templates/ChatGPT Image 22_47_21 8 thg 5, 2026 (4).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c10', name: 'Mẫu 12', image: '/templates/ChatGPT Image 22_47_49 8 thg 5, 2026.png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c11', name: 'Mẫu 13', image: '/templates/ChatGPT Image 22_48_04 8 thg 5, 2026.png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c12', name: 'Mẫu 14', image: '/templates/ChatGPT Image 22_58_53 8 thg 5, 2026 (1).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c13', name: 'Mẫu 15', image: '/templates/ChatGPT Image 22_58_53 8 thg 5, 2026 (2).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c14', name: 'Mẫu 16', image: '/templates/ChatGPT Image 22_58_53 8 thg 5, 2026 (3).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c15', name: 'Mẫu 17', image: '/templates/ChatGPT Image 22_58_54 8 thg 5, 2026 (4).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c16', name: 'Mẫu 18', image: '/templates/ChatGPT Image 23_11_43 8 thg 5, 2026 (1).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c17', name: 'Mẫu 19', image: '/templates/ChatGPT Image 23_11_43 8 thg 5, 2026 (2).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c18', name: 'Mẫu 20', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (3).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c19', name: 'Mẫu 21', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (4).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c20', name: 'Mẫu 22', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (5).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c21', name: 'Mẫu 23', image: '/templates/ChatGPT Image 23_11_44 8 thg 5, 2026 (6).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c22', name: 'Mẫu 24', image: '/templates/ChatGPT Image 23_19_32 8 thg 5, 2026 (1).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c23', name: 'Mẫu 25', image: '/templates/ChatGPT Image 23_19_32 8 thg 5, 2026 (2).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c24', name: 'Mẫu 26', image: '/templates/ChatGPT Image 23_19_32 8 thg 5, 2026 (3).png', ...STYLE_BOTTOM_CENTER },
+  { id: 'c25', name: 'Mẫu 27', image: '/templates/ChatGPT Image 23_19_33 8 thg 5, 2026 (4).png', ...STYLE_BOTTOM_CENTER },
+];
 
 export default function PosterGenerator() {
   const [teacherName, setTeacherName] = useState('');
@@ -49,25 +56,25 @@ export default function PosterGenerator() {
   const [previewScale, setPreviewScale] = useState(0.4);
   const [designMode, setDesignMode] = useState(false);
 
-  const [nameStyle, setNameStyle] = useState({ ...DEFAULT_NAME_STYLE });
-  const [phoneStyle, setPhoneStyle] = useState({ ...DEFAULT_PHONE_STYLE });
+  const [nameStyle, setNameStyle] = useState({ ...templates[0].name });
+  const [phoneStyle, setPhoneStyle] = useState({ ...templates[0].phone });
 
   const posterRef = useRef(null);
   const containerRef = useRef(null);
 
   const handleSelectTemplate = (tpl) => {
     setSelectedTemplate(tpl);
-    setNameStyle({ ...DEFAULT_NAME_STYLE });
-    setPhoneStyle({ ...DEFAULT_PHONE_STYLE });
+    // Apply template-specific positions
+    setNameStyle({ ...tpl.name });
+    setPhoneStyle({ ...tpl.phone });
   };
 
-  /* ── Scale calculation: account for template strip height (~90px) and toolbar (~48px) ── */
+  /* ── Scale calculation ── */
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
         const h = containerRef.current.offsetHeight;
         const w = containerRef.current.offsetWidth;
-        // Reserve: toolbar ~48px, strip ~82px, padding 16px
         const availH = h - 48 - 82 - 16;
         const availW = w - 24;
         const scale = Math.min(availH / 1350, availW / 1080);
@@ -136,8 +143,8 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
 
-          {/* ── Left Column: Form only ── */}
-          <div className="xl:col-span-4 order-2 xl:order-1 pb-20 xl:pb-0">
+          {/* ── Left Column: Form (Top on Mobile) ── */}
+          <div className="xl:col-span-4 pb-10 xl:pb-0">
             {designMode ? (
               <div className="animate-in slide-in-from-left-4 duration-300">
                 <DesignPanel
@@ -147,10 +154,10 @@ export default function PosterGenerator() {
                   setPhone={setPhone}
                   nameStyle={nameStyle}
                   setNameStyle={setNameStyle}
-                  defaultNameStyle={DEFAULT_NAME_STYLE}
+                  defaultNameStyle={selectedTemplate.name}
                   phoneStyle={phoneStyle}
                   setPhoneStyle={setPhoneStyle}
-                  defaultPhoneStyle={DEFAULT_PHONE_STYLE}
+                  defaultPhoneStyle={selectedTemplate.phone}
                   onBack={() => setDesignMode(false)}
                   onDownload={handleDownload}
                   isExporting={isExporting}
@@ -170,10 +177,10 @@ export default function PosterGenerator() {
             )}
           </div>
 
-          {/* ── Right Column: Canvas + Template Strip ── */}
+          {/* ── Right Column: Canvas ── */}
           <div
             ref={containerRef}
-            className="xl:col-span-8 order-1 xl:order-2 xl:sticky xl:top-22 h-[600px] xl:h-[calc(100vh-7rem)] rounded-2xl overflow-hidden shadow-canvas bg-[#F1F5F9] bg-canvas-pattern border border-slate-200/80 flex flex-col"
+            className="xl:col-span-8 xl:sticky xl:top-22 h-[480px] sm:h-[600px] xl:h-[calc(100vh-7rem)] rounded-2xl overflow-hidden shadow-canvas bg-[#F1F5F9] bg-canvas-pattern border border-slate-200/80 flex flex-col"
           >
             <PosterPreview
               posterRef={posterRef}
