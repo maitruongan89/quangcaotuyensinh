@@ -10,6 +10,13 @@ import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X, Download, E
 
 /* ─── Template Style Presets ─── */
 const DEFAULT_TEXT_COLOR = '#FFFF00'; 
+const DARK_BLUE_COLOR = '#003399'; // Màu xanh đậm cho Mẫu 1 & 2
+
+// Tọa độ riêng cho Mẫu 1 & 2 (Căn chỉnh vào ô trắng góc dưới trái)
+const STYLE_MAU_1_2 = {
+  defaultNameStyle:  { left: 325, top: 812, width: 330, height: 45, fontSize: 32, color: DARK_BLUE_COLOR, fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 325, top: 846, width: 330, height: 45, fontSize: 32, color: DARK_BLUE_COLOR, fontWeight: 900, align: 'left' }
+};
 
 const STYLE_STACK_BOTTOM = {
   defaultNameStyle:  { left: 235, top: 1105, width: 440, height: 60, fontSize: 38, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
@@ -25,8 +32,8 @@ const STYLE_SIDE_BY_SIDE_ALT = {
 };
 
 const templates = [
-  { id: 'mau-1', name: 'Mẫu 1',  image: '/templates/mau-1.png', ...STYLE_STACK_BOTTOM },
-  { id: 'mau-2', name: 'Mẫu 2',  image: '/templates/mau-2.png', ...STYLE_STACK_BOTTOM },
+  { id: 'mau-1', name: 'Mẫu 1',  image: '/templates/mau-1.png', ...STYLE_MAU_1_2 },
+  { id: 'mau-2', name: 'Mẫu 2',  image: '/templates/mau-2.png', ...STYLE_MAU_1_2 },
   { id: 'c1',  name: 'Mẫu 3',  image: '/templates/ChatGPT Image 22_30_06 8 thg 5, 2026 (1).png', ...STYLE_SIDE_BY_SIDE },
   { id: 'c2',  name: 'Mẫu 4',  image: '/templates/ChatGPT Image 22_35_50 8 thg 5, 2026 (1).png', ...STYLE_SIDE_BY_SIDE },
   { id: 'c3',  name: 'Mẫu 5',  image: '/templates/ChatGPT Image 22_35_50 8 thg 5, 2026 (2).png', ...STYLE_SIDE_BY_SIDE },
@@ -62,7 +69,7 @@ export default function PosterGenerator() {
   const [previewScale, setPreviewScale] = useState(0.4);
   const [designMode, setDesignMode] = useState(false);
   const [showShadow, setShowShadow] = useState(true);
-  const [exportImageUrl, setExportImageUrl] = useState(null); // URL ảnh cho Modal xem trước
+  const [exportImageUrl, setExportImageUrl] = useState(null); 
   const [nameStyle, setNameStyle] = useState({ ...templates[0].defaultNameStyle });
   const [phoneStyle, setPhoneStyle] = useState({ ...templates[0].defaultPhoneStyle });
 
@@ -116,7 +123,7 @@ export default function PosterGenerator() {
           cacheBust: true,
           style: { transform: 'none' }
         });
-        setExportImageUrl(dataUrl); // Hiển thị Modal xem trước
+        setExportImageUrl(dataUrl); 
       } catch (err) { 
         alert('Lỗi tạo ảnh. Hãy thử lại.'); 
       } finally { 
@@ -140,7 +147,7 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 6.1 - Mai Trường An - 0905012131
+            Version 6.2 - Mai Trường An - 0905012131
           </span>
         </div>
 
@@ -181,7 +188,6 @@ export default function PosterGenerator() {
         </div>
       </div>
 
-      {/* ─── MODAL XEM TRƯỚC KẾT QUẢ TRƯỚC KHI TẢI ─── */}
       {exportImageUrl && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
           <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
