@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Loader2, Move } from 'lucide-react';
 
-/* ─── Draggable Text Box (PHIÊN BẢN CHỮ GRADIENT CAO CẤP) ────── */
+/* ─── Draggable Text Box ─────────────────────────────────── */
 const DraggableTextBox = ({
   value, boxStyle, setBoxStyle,
   posterScale, isSelected, onSelect, isExporting
@@ -25,8 +25,8 @@ const DraggableTextBox = ({
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     return {
-      x: (clientX - rect.left) / posterScale,
-      y: (clientY - rect.top) / posterScale,
+      x: (clientX - rect.left) / (posterScale || 1),
+      y: (clientY - rect.top) / (posterScale || 1),
     };
   };
 
@@ -68,17 +68,15 @@ const DraggableTextBox = ({
   };
 
   const showActiveState = isSelected && !isExporting;
-  const handleSize = Math.max(14, 28 / posterScale); 
+  const handleSize = Math.max(14, 28 / (posterScale || 1)); 
 
+  // Hiệu ứng chữ Vàng Cam Gradient cực đẹp
   const textGradientStyle = {
-    background: boxStyle.color === '#FFFFFF' 
-      ? 'linear-gradient(to bottom, #FFFFFF 30%, #E2E8F0 100%)' 
-      : boxStyle.color === '#FFFF00'
-        ? 'linear-gradient(to bottom, #FFFF00 30%, #FFA500 100%)' 
-        : 'none',
+    background: boxStyle.color === '#FFFF00' 
+      ? 'linear-gradient(to bottom, #FFFF00 20%, #FF9900 100%)' // Vàng cam Gold rực rỡ
+      : 'none',
     WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    textShadow: isExporting ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
+    WebkitTextFillColor: boxStyle.color === '#FFFF00' ? 'transparent' : boxStyle.color,
   };
 
   return (
@@ -113,8 +111,8 @@ const DraggableTextBox = ({
           pointerEvents: 'none',
           fontFamily: 'inherit',
           lineHeight: 1.1,
-          filter: 'drop-shadow(0px 3px 5px rgba(0,0,0,0.4))',
-          ...(boxStyle.color === '#FFFFFF' || boxStyle.color === '#FFFF00' ? textGradientStyle : {})
+          filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))', // Bóng đổ mạnh để nổi bật
+          ...textGradientStyle
         }}
       >
         {value}
@@ -130,7 +128,6 @@ const DraggableTextBox = ({
             background: '#3B82F6', borderRadius: '50%',
             cursor: 'se-resize', zIndex: 60,
             border: '2.5px solid white',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
           }}
         />
       )}
@@ -140,7 +137,7 @@ const DraggableTextBox = ({
 
 /* ─── Main PosterPreview ─────────────────────────────────── */
 const PosterPreview = ({
-  posterRef, previewScale, selectedTemplate,
+  exportRef, previewScale, selectedTemplate,
   teacherName, phone, formatPhoneNumber,
   isExporting, handleDownload,
   nameStyle, setNameStyle,
@@ -149,15 +146,25 @@ const PosterPreview = ({
 }) => {
   const [selectedBox, setSelectedBox] = useState(null);
   const scaledW = Math.round(1080 * previewScale);
-  const scaledH = Math.round(1350 * previewScale); // FIXED: Removed posterScale reference
+  const scaledH = Math.round(1350 * previewScale);
 
   return (
     <div className="relative w-full h-full flex flex-col bg-white overflow-hidden">
+      {/* ─── POSTER ẨN (Dùng để chụp ảnh chuẩn 1080x1350) ─── */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0, width: 1080, height: 1350 }}>
+        <div ref={exportRef} style={{ position: 'relative', width: 1080, height: 1350, backgroundColor: '#fff' }}>
+          <img src={selectedTemplate?.image} crossOrigin="anonymous" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Export Base" />
+          <DraggableTextBox value={teacherName || 'Tên giáo viên'} boxStyle={nameStyle} posterScale={1} isExporting={true} />
+          <DraggableTextBox value={phone ? formatPhoneNumber(phone) : 'Số điện thoại'} boxStyle={phoneStyle} posterScale={1} isExporting={true} />
+        </div>
+      </div>
+
+      {/* ─── UI XEM TRƯỚC ─── */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0 z-30">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
           <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
-            {isExporting ? 'Đang xuất file...' : 'Xem trước'}
+             {isExporting ? 'Đang tạo ảnh...' : 'Xem trước'}
           </h4>
         </div>
         <button onClick={handleDownload} disabled={isExporting} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-blue-600/30 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
@@ -167,13 +174,13 @@ const PosterPreview = ({
 
       <div className="flex-1 flex items-center justify-center bg-slate-100 relative overflow-hidden" style={{ touchAction: 'none' }}>
         {designMode && !selectedBox && !isExporting && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-slate-900/90 text-white rounded-full text-[9px] font-bold shadow-2xl z-40">KÉO CHỮ ĐỂ DI CHUYỂN</div>
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-slate-900/90 text-white rounded-full text-[9px] font-bold shadow-2xl z-40">CHẠM VÀO CHỮ ĐỂ DI CHUYỂN</div>
         )}
         {selectedTemplate ? (
           <div style={{ width: scaledW, height: scaledH, position: 'relative', touchAction: 'none' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, width: 1080, height: 1350, transform: `scale(${previewScale})`, transformOrigin: 'top left', background: '#fff', touchAction: 'none' }}>
-              <div ref={posterRef} data-canvas="true" style={{ position: 'absolute', inset: 0, touchAction: 'none', backgroundColor: '#fff', overflow: 'visible' }} onClick={() => setSelectedBox(null)}>
-                <img src={selectedTemplate.image} crossOrigin="anonymous" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} alt="Poster Base" />
+              <div data-canvas="true" style={{ position: 'absolute', inset: 0, touchAction: 'none', backgroundColor: '#fff' }} onClick={() => setSelectedBox(null)}>
+                <img src={selectedTemplate.image} crossOrigin="anonymous" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview Base" />
                 <DraggableTextBox value={teacherName || 'Tên giáo viên'} boxStyle={nameStyle} setBoxStyle={setNameStyle} posterScale={previewScale} isSelected={selectedBox === 'name'} onSelect={() => setSelectedBox('name')} isExporting={isExporting} />
                 <DraggableTextBox value={phone ? formatPhoneNumber(phone) : 'Số điện thoại'} boxStyle={phoneStyle} setBoxStyle={setPhoneStyle} posterScale={previewScale} isSelected={selectedBox === 'phone'} onSelect={() => setSelectedBox('phone')} isExporting={isExporting} />
               </div>

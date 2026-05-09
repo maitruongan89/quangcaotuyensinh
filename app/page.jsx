@@ -8,10 +8,8 @@ import DesignPanel from '@/components/DesignPanel';
 import PosterPreview from '@/components/PosterPreview';
 import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X } from 'lucide-react';
 
-/* ─── Template Style Presets (MÀU CHỮ MỚI: TRẮNG & GRADIENT) ─── */
-
-// Sử dụng màu trắng tinh khiết để nổi bật nhất trên nền xanh
-const DEFAULT_TEXT_COLOR = '#FFFFFF'; 
+/* ─── Template Style Presets (MÀU CHỮ MẶC ĐỊNH: VÀNG GOLD) ─── */
+const DEFAULT_TEXT_COLOR = '#FFFF00'; 
 
 const STYLE_STACK_BOTTOM = {
   defaultNameStyle:  { left: 235, top: 1115, width: 440, height: 60, fontSize: 38, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
@@ -66,7 +64,7 @@ export default function PosterGenerator() {
   const [nameStyle, setNameStyle] = useState({ ...templates[0].defaultNameStyle });
   const [phoneStyle, setPhoneStyle] = useState({ ...templates[0].defaultPhoneStyle });
 
-  const posterRef = useRef(null);
+  const exportRef = useRef(null); // Ref cho Poster ẩn (Shadow Canvas)
   const containerRef = useRef(null);
 
   const handleSelectTemplate = (tpl) => {
@@ -98,7 +96,7 @@ export default function PosterGenerator() {
   };
 
   const handleStartDesign = () => {
-    if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ tên và số điện thoại."); return; }
+    if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ thông tin."); return; }
     setDesignMode(true);
   };
 
@@ -106,10 +104,12 @@ export default function PosterGenerator() {
     if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ thông tin."); return; }
     setIsExporting(true);
     
+    // Đợi UI cập nhật
     setTimeout(async () => {
       try {
-        if (!posterRef.current) return;
-        const dataUrl = await toPng(posterRef.current, { 
+        if (!exportRef.current) return;
+        // Chụp cái Poster ẨN (luôn là 1080x1350, không bị mất góc)
+        const dataUrl = await toPng(exportRef.current, { 
           width: 1080, 
           height: 1350, 
           pixelRatio: 2,
@@ -124,18 +124,17 @@ export default function PosterGenerator() {
       } finally { 
         setIsExporting(false); 
       }
-    }, 200);
+    }, 300);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 bg-dots pt-20 pb-12 px-4 sm:px-6">
       <Header />
-      <div className="fixed inset-0 pointer-events-none -z-10 bg-gradient-to-b from-white to-slate-50" />
       
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 4.5 - Mai Trường An
+            Version 5.0 - Mai Trường An (Final Fix)
           </span>
         </div>
 
@@ -154,7 +153,7 @@ export default function PosterGenerator() {
             ref={containerRef}
             className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[520px] sm:h-[650px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}
           >
-            <PosterPreview posterRef={posterRef} previewScale={previewScale} selectedTemplate={selectedTemplate} teacherName={teacherName} phone={phone} formatPhoneNumber={formatPhoneNumber} isExporting={isExporting} handleDownload={handleDownload} nameStyle={nameStyle} setNameStyle={setNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} designMode={designMode} />
+            <PosterPreview exportRef={exportRef} previewScale={previewScale} selectedTemplate={selectedTemplate} teacherName={teacherName} phone={phone} formatPhoneNumber={formatPhoneNumber} isExporting={isExporting} handleDownload={handleDownload} nameStyle={nameStyle} setNameStyle={setNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} designMode={designMode} />
           </div>
         </div>
       </div>
@@ -182,11 +181,7 @@ const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
               <div key={tpl.id} className="shrink-0 flex flex-col items-center gap-1.5">
                 <div className={`relative rounded-xl overflow-hidden w-[75px] h-[95px] cursor-pointer transition-all ${isActive ? 'ring-4 ring-blue-600 ring-offset-2' : 'hover:ring-2 hover:ring-slate-300'}`} onClick={() => onSelect(tpl)}>
                   <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <button onClick={e => { e.stopPropagation(); setPreviewTpl(tpl); }} className="bg-white text-slate-900 text-[10px] font-black px-2 py-1 rounded-lg shadow-xl">XEM</button>
-                  </div>
                   {isActive && <div className="absolute top-1 right-1 bg-blue-600 rounded-full p-0.5"><CheckCircle2 className="w-3 h-3 text-white fill-white" /></div>}
-                  <button onClick={e => { e.stopPropagation(); setPreviewTpl(tpl); }} className="lg:hidden absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] font-black py-1">XEM</button>
                 </div>
                 <span className={`text-[10px] font-bold truncate w-[75px] text-center ${isActive ? 'text-blue-600' : 'text-slate-400'}`}>{tpl.name}</span>
               </div>
@@ -195,7 +190,25 @@ const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
         </div>
         <button onClick={() => stripRef.current?.scrollBy({ left: 240, behavior: 'smooth' })} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shadow-sm text-slate-400 hover:text-blue-600"><ChevronRight className="w-4 h-4" /></button>
       </div>
-      {previewTpl && <TemplatePreviewModal template={previewTpl} templates={templates} onClose={() => setPreviewTpl(null)} onSelect={onSelect} selectedTemplate={selectedTemplate} />}
+    </div>
+  );
+};
+
+const TemplatePreviewModal = ({ template, templates, onClose, onSelect, selectedTemplate }) => {
+  const [current, setCurrent] = useState(templates.findIndex(t => t.id === template.id));
+  const tpl = templates[current];
+  const isSelected = selectedTemplate?.id === tpl.id;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden max-w-sm w-full">
+        <div className="flex items-center justify-between px-4 py-3 border-b"><h3 className="text-sm font-black">{tpl.name}</h3><button onClick={onClose} className="p-1 text-slate-400"><X /></button></div>
+        <div className="relative bg-slate-100 flex items-center justify-center min-h-[400px]">
+          <img src={tpl.image} alt={tpl.name} className="w-full object-contain max-h-[500px]" />
+        </div>
+        <div className="p-4 flex gap-2">
+          <button onClick={() => { onSelect(tpl); onClose(); }} className={`flex-1 py-3 rounded-xl font-bold text-white bg-blue-600`}>Chọn mẫu này</button>
+        </div>
+      </div>
     </div>
   );
 };
