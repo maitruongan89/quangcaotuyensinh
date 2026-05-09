@@ -2,19 +2,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Loader2, Move } from 'lucide-react';
 
-/* ─── Draggable Text Box ─────────────────────────────────── */
+/* ─── Draggable Text Box (PHIÊN BẢN CO GIÃN THÔNG MINH) ──────── */
 const DraggableTextBox = ({
   value, boxStyle, setBoxStyle,
   posterScale, isSelected, onSelect, isExporting
 }) => {
   const dragState = useRef({ type: 0 }); 
   const boxRef = useRef(null);
+  const textRef = useRef(null);
+
+  // Tự động tính toán chiều rộng để khung vừa khít với chữ
+  useEffect(() => {
+    if (textRef.current && !dragState.current.type) {
+      const width = textRef.current.offsetWidth + 20; // Thêm chút padding
+      if (width !== boxStyle.width) {
+        setBoxStyle(prev => ({ ...prev, width: Math.min(1000, Math.max(60, width)) }));
+      }
+    }
+  }, [value, boxStyle.fontSize, boxStyle.fontWeight]);
 
   const getCanvasCoords = (clientX, clientY) => {
     const canvas = boxRef.current?.closest('[data-canvas="true"]');
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    // Quan trọng: Phải bù trừ cả cuộn trang (scrollX, scrollY) nếu có
     return {
       x: (clientX - rect.left) / posterScale,
       y: (clientY - rect.top) / posterScale,
@@ -39,8 +49,6 @@ const DraggableTextBox = ({
 
     const handleMove = (ev) => {
       if (dragState.current.type === 0) return;
-      
-      // Ngăn chặn trình duyệt xử lý vuốt ngang/dọc (Back/Scroll)
       if (ev.cancelable) ev.preventDefault(); 
       
       const mX = ev.clientX || ev.touches?.[0]?.clientX;
@@ -48,17 +56,20 @@ const DraggableTextBox = ({
       const mp = getCanvasCoords(mX, mY);
       
       const d = dragState.current;
-      if (d.type === 1) { // Kéo di chuyển
+      if (d.type === 1) {
         setBoxStyle(prev => ({
           ...prev,
           left: Math.max(0, Math.min(1080 - prev.width, d.origLeft + (mp.x - d.startX))),
           top:  Math.max(0, Math.min(1350 - prev.height, d.origTop  + (mp.y - d.startY))),
         }));
-      } else if (d.type === 2) { // Thay đổi kích thước
+      } else if (d.type === 2) {
+        // Nếu người dùng chủ động kéo nút tròn thì mới thay đổi fontSize (scale chữ)
+        const newWidth = Math.max(60, d.origW + (mp.x - d.startX));
+        const scaleFactor = newWidth / d.origW;
         setBoxStyle(prev => ({
           ...prev,
-          width:  Math.max(60, Math.min(1080 - prev.left, d.origW + (mp.x - d.startX))),
-          height: Math.max(20, d.origH + (mp.y - d.startY)),
+          width: newWidth,
+          fontSize: Math.max(12, Math.min(200, Math.round(prev.fontSize * scaleFactor)))
         }));
       }
     };
@@ -78,7 +89,7 @@ const DraggableTextBox = ({
   };
 
   const showActiveState = isSelected && !isExporting;
-  const handleSize = Math.max(12, 24 / posterScale); 
+  const handleSize = Math.max(14, 28 / posterScale); 
 
   return (
     <div
@@ -87,44 +98,47 @@ const DraggableTextBox = ({
         position: 'absolute',
         left: `${boxStyle.left}px`,
         top:  `${boxStyle.top}px`,
-        width:  `${boxStyle.width}px`,
-        height: `${boxStyle.height}px`,
+        width: 'auto', // Để khung tự co giãn
+        minWidth: `${boxStyle.width}px`, 
+        height: 'auto',
         cursor: isExporting ? 'default' : 'move',
         border: showActiveState ? `1.5px dashed #3B82F6` : 'none',
         boxSizing: 'border-box',
-        touchAction: 'none', // Cực kỳ quan trọng để kéo ngang trên mobile
+        touchAction: 'none',
         zIndex: isSelected ? 50 : 10,
+        display: 'inline-block',
       }}
       onMouseDown={e => startDrag(e, 1)}
       onTouchStart={e => startDrag(e, 1)}
     >
-      <div style={{
-        width: '100%', height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: boxStyle.align === 'center' ? 'center' : boxStyle.align === 'right' ? 'flex-end' : 'flex-start',
-        fontSize: `${boxStyle.fontSize}px`,
-        color: boxStyle.color,
-        fontWeight: boxStyle.fontWeight,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        pointerEvents: 'none',
-        textAlign: boxStyle.align,
-        fontFamily: 'inherit',
-        lineHeight: 1.2,
-      }}>{value}</div>
+      <div 
+        ref={textRef}
+        style={{
+          display: 'inline-block',
+          padding: '0 5px',
+          fontSize: `${boxStyle.fontSize}px`,
+          color: boxStyle.color,
+          fontWeight: boxStyle.fontWeight,
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          fontFamily: 'inherit',
+          lineHeight: 1.1,
+        }}
+      >
+        {value}
+      </div>
 
       {showActiveState && (
         <div
           onMouseDown={e => startDrag(e, 2)}
           onTouchStart={e => startDrag(e, 2)}
           style={{
-            position: 'absolute', bottom: -handleSize / 2, right: -handleSize / 2,
+            position: 'absolute', bottom: -handleSize / 3, right: -handleSize / 3,
             width: handleSize, height: handleSize,
             background: '#3B82F6', borderRadius: '50%',
             cursor: 'se-resize', zIndex: 60,
-            border: '2px solid white',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+            border: '2.5px solid white',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
           }}
         />
       )}
@@ -142,8 +156,6 @@ const PosterPreview = ({
   designMode
 }) => {
   const [selectedBox, setSelectedBox] = useState(null);
-  
-  // Kích thước preview hiển thị
   const scaledW = Math.round(1080 * previewScale);
   const scaledH = Math.round(1350 * previewScale);
 
@@ -166,26 +178,15 @@ const PosterPreview = ({
         </button>
       </div>
 
-      <div 
-        className="flex-1 flex items-center justify-center bg-slate-100 relative overflow-hidden"
-        style={{ touchAction: 'none' }} // Ngăn cuộn toàn vùng canvas
-      >
+      <div className="flex-1 flex items-center justify-center bg-slate-100 relative overflow-hidden" style={{ touchAction: 'none' }}>
         {designMode && !selectedBox && !isExporting && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-slate-900/90 text-white rounded-full text-[9px] font-bold shadow-2xl z-40">
-             KÉO CHỮ ĐỂ DI CHUYỂN (NGANG/DỌC)
+             CHẠM VÀO CHỮ ĐỂ DI CHUYỂN
           </div>
         )}
 
         {selectedTemplate ? (
-          <div 
-            style={{ 
-              width: scaledW, 
-              height: scaledH, 
-              position: 'relative',
-              touchAction: 'none'
-            }}
-          >
-            {/* Wrapper chuẩn 1080x1350 được scale để hiển thị */}
+          <div style={{ width: scaledW, height: scaledH, position: 'relative', touchAction: 'none' }}>
             <div style={{ 
               position: 'absolute', top: 0, left: 0, 
               width: 1080, height: 1350, 
@@ -197,14 +198,7 @@ const PosterPreview = ({
               <div 
                 ref={posterRef} 
                 data-canvas="true" 
-                style={{ 
-                  position: 'absolute', 
-                  inset: 0, 
-                  touchAction: 'none', 
-                  backgroundColor: '#fff',
-                  // Đảm bảo không bị clip khi xuất
-                  overflow: 'visible' 
-                }} 
+                style={{ position: 'absolute', inset: 0, touchAction: 'none', backgroundColor: '#fff', overflow: 'visible' }} 
                 onClick={() => setSelectedBox(null)}
               >
                 <img 
