@@ -10,16 +10,16 @@ import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X } from 'luci
 
 /* ─── Template Style Presets ─── */
 const STYLE_STACK_BOTTOM = {
-  name:  { left: 235, top: 1115, width: 440, height: 60, fontSize: 38, color: '#003B8F', fontWeight: 900, align: 'left' },
-  phone: { left: 235, top: 1212, width: 440, height: 70, fontSize: 52, color: '#003B8F', fontWeight: 900, align: 'left' }
+  defaultNameStyle:  { left: 235, top: 1115, width: 440, height: 60, fontSize: 38, color: '#003B8F', fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 235, top: 1212, width: 440, height: 70, fontSize: 52, color: '#003B8F', fontWeight: 900, align: 'left' }
 };
 const STYLE_SIDE_BY_SIDE = {
-  name:  { left: 105, top: 1042, width: 360, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' },
-  phone: { left: 575, top: 1042, width: 375, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' }
+  defaultNameStyle:  { left: 105, top: 1042, width: 360, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 575, top: 1042, width: 375, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' }
 };
 const STYLE_SIDE_BY_SIDE_ALT = {
-  name:  { left: 105, top: 1120, width: 360, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' },
-  phone: { left: 575, top: 1120, width: 375, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' }
+  defaultNameStyle:  { left: 105, top: 1120, width: 360, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 575, top: 1120, width: 375, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' }
 };
 
 const templates = [
@@ -122,16 +122,16 @@ export default function PosterGenerator() {
   const [isExporting, setIsExporting] = useState(false);
   const [previewScale, setPreviewScale] = useState(0.4);
   const [designMode, setDesignMode] = useState(false);
-  const [nameStyle, setNameStyle] = useState({ ...templates[0].name });
-  const [phoneStyle, setPhoneStyle] = useState({ ...templates[0].phone });
+  const [nameStyle, setNameStyle] = useState({ ...templates[0].defaultNameStyle });
+  const [phoneStyle, setPhoneStyle] = useState({ ...templates[0].defaultPhoneStyle });
 
   const posterRef = useRef(null);
   const containerRef = useRef(null);
 
   const handleSelectTemplate = (tpl) => {
     setSelectedTemplate(tpl);
-    setNameStyle({ ...tpl.name });
-    setPhoneStyle({ ...tpl.phone });
+    setNameStyle({ ...tpl.defaultNameStyle });
+    setPhoneStyle({ ...tpl.defaultPhoneStyle });
   };
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export default function PosterGenerator() {
       if (containerRef.current) {
         const h = containerRef.current.offsetHeight;
         const w = containerRef.current.offsetWidth;
-        const availH = h - 60; // Just header
+        const availH = h - 60; 
         const availW = w - 32;
         const scale = Math.min(availH / 1350, availW / 1080);
         setPreviewScale(Math.max(0.1, scale));
@@ -185,7 +185,7 @@ export default function PosterGenerator() {
         {/* Version Badge */}
         <div className="mb-4 flex justify-center">
           <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-xl">
-            Version 3.0 - Library Always Visible
+            Version 3.1 - Build Fixed
           </span>
         </div>
 
@@ -196,7 +196,7 @@ export default function PosterGenerator() {
           {/* Left Column: Form */}
           <div className="w-full xl:col-span-4" style={{ order: designMode ? -1 : 0 }}>
             {designMode ? (
-              <DesignPanel teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} nameStyle={nameStyle} setNameStyle={setNameStyle} defaultNameStyle={selectedTemplate.name} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} defaultPhoneStyle={selectedTemplate.phone} onBack={() => setDesignMode(false)} onDownload={handleDownload} isExporting={isExporting} />
+              <DesignPanel teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} nameStyle={nameStyle} setNameStyle={setNameStyle} defaultNameStyle={selectedTemplate.defaultNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} defaultPhoneStyle={selectedTemplate.defaultPhoneStyle} onBack={() => setDesignMode(false)} onDownload={handleDownload} isExporting={isExporting} />
             ) : (
               <HeroForm teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} onStart={handleStartDesign} isExporting={isExporting} />
             )}
