@@ -164,16 +164,33 @@ export default function PosterGenerator() {
   const handleDownload = async () => {
     if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ thông tin."); return; }
     setIsExporting(true);
+    
+    // Đợi 200ms để đảm bảo UI đã ẩn hết các khung chọn trước khi chụp
     setTimeout(async () => {
       try {
         if (!posterRef.current) return;
-        const dataUrl = await toPng(posterRef.current, { width: 1080, height: 1350, pixelRatio: 2 });
+        // Xuất ảnh chất lượng cao 2x pixelRatio
+        const dataUrl = await toPng(posterRef.current, { 
+          width: 1080, 
+          height: 1350, 
+          pixelRatio: 2,
+          cacheBust: true,
+          style: {
+            transform: 'none',
+            transformOrigin: 'top left'
+          }
+        });
         const link = document.createElement('a');
         link.download = `poster-${teacherName.toLowerCase().replace(/\s+/g, '-')}.png`;
         link.href = dataUrl;
         link.click();
-      } catch (err) { alert('Lỗi xuất ảnh. Hãy thử lại.'); } finally { setIsExporting(false); }
-    }, 100);
+      } catch (err) { 
+        alert('Lỗi xuất ảnh. Hãy thử tải lại trang và thử lại.'); 
+        console.error(err);
+      } finally { 
+        setIsExporting(false); 
+      }
+    }, 200);
   };
 
   return (
@@ -184,12 +201,12 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         {/* Version Badge */}
         <div className="mb-4 flex justify-center">
-          <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-xl">
-            Version 3.1 - Build Fixed
+          <span className="px-4 py-1.5 bg-blue-700 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl">
+            Version 4.0 - Mai Trường An
           </span>
         </div>
 
-        {/* Global Template Library - Always on top */}
+        {/* Global Template Library */}
         <TemplateStrip templates={templates} selectedTemplate={selectedTemplate} onSelect={handleSelectTemplate} />
 
         <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start">
@@ -202,10 +219,10 @@ export default function PosterGenerator() {
             )}
           </div>
 
-          {/* Right Column: Canvas */}
+          {/* Right Column: Canvas Container */}
           <div
             ref={containerRef}
-            className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[500px] sm:h-[600px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}
+            className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[520px] sm:h-[650px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}
           >
             <PosterPreview posterRef={posterRef} previewScale={previewScale} selectedTemplate={selectedTemplate} teacherName={teacherName} phone={phone} formatPhoneNumber={formatPhoneNumber} isExporting={isExporting} handleDownload={handleDownload} nameStyle={nameStyle} setNameStyle={setNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} designMode={designMode} />
           </div>
