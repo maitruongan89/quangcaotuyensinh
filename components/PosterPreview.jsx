@@ -69,7 +69,7 @@ const DraggableTextBox = ({
   };
 
   const showActiveState = isSelected && !isExporting;
-  const handleSize = Math.max(28, 56 / (posterScale || 1)); 
+  const handleSize = Math.max(24, 48 / (posterScale || 1)); 
 
   const textGradientStyle = {
     background: boxStyle.color === '#FFFF00' 
@@ -90,7 +90,7 @@ const DraggableTextBox = ({
         minWidth: `${boxStyle.width}px`, 
         height: 'auto',
         cursor: isExporting ? 'default' : 'move',
-        border: showActiveState ? `3px dashed #3B82F6` : 'none',
+        border: showActiveState ? `2px dashed #3B82F6` : 'none',
         boxSizing: 'border-box',
         touchAction: 'none',
         zIndex: isSelected ? 100 : 10,
@@ -103,7 +103,7 @@ const DraggableTextBox = ({
         ref={textRef}
         style={{
           display: 'inline-block',
-          padding: '0 10px',
+          padding: '0 8px',
           fontSize: `${boxStyle.fontSize}px`,
           color: boxStyle.color,
           fontWeight: boxStyle.fontWeight,
@@ -111,7 +111,7 @@ const DraggableTextBox = ({
           pointerEvents: 'none',
           fontFamily: 'inherit',
           lineHeight: 1.1,
-          filter: showShadow ? 'drop-shadow(0px 6px 12px rgba(0,0,0,0.8))' : 'none',
+          filter: showShadow ? 'drop-shadow(0px 4px 10px rgba(0,0,0,0.8))' : 'none',
           ...textGradientStyle
         }}
       >
@@ -127,12 +127,12 @@ const DraggableTextBox = ({
             width: handleSize, height: handleSize,
             background: '#3B82F6', borderRadius: '50%',
             cursor: 'se-resize', zIndex: 60,
-            border: '6px solid white',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+            border: '4px solid white',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}
         >
-           <div className="w-1/2 h-1/2 border-r-4 border-b-4 border-white rotate-45 transform translate-x-[-1px] translate-y-[-1px]" />
+           <div className="w-1/2 h-1/2 border-r-2 border-b-2 border-white rotate-45 transform translate-x-[-1px] translate-y-[-1px]" />
         </div>
       )}
     </div>
@@ -158,9 +158,8 @@ const PosterPreview = ({
   const colors = [
     { name: 'Vàng', value: '#FFFF00' },
     { name: 'Đỏ', value: '#FF0000' },
-    { name: 'Xanh ASEAN', value: '#003399' },
+    { name: 'Xanh', value: '#003399' },
     { name: 'Xanh lá', value: '#00FF00' },
-    { name: 'Cam', value: '#FF8800' },
     { name: 'Đen', value: '#000000' }
   ];
 
@@ -175,7 +174,7 @@ const PosterPreview = ({
 
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-50 overflow-hidden">
-      {/* ─── POSTER ẨN (CHỐNG MẤT GÓC) ─── */}
+      {/* ─── POSTER ẨN ─── */}
       <div style={{ position: 'fixed', left: '-5000px', top: 0, width: 1080, height: 1350, zIndex: -100, overflow: 'visible' }}>
         <div ref={exportRef} style={{ position: 'relative', width: 1080, height: 1350, backgroundColor: '#fff', overflow: 'visible' }}>
           <img src={selectedTemplate?.image} crossOrigin="anonymous" style={{ width: '100%', height: '100%', objectFit: 'fill' }} alt="Export Base" />
@@ -184,21 +183,11 @@ const PosterPreview = ({
         </div>
       </div>
 
-      {/* ─── UI XEM TRƯỚC ─── */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0 z-30">
-        <div className="flex items-center gap-2 text-slate-800">
-          <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
-          <h4 className="text-[10px] font-black uppercase tracking-widest italic">
-             {isExporting ? 'Đang chuẩn bị...' : 'Bố cục chuyên nghiệp'}
-          </h4>
-        </div>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center relative overflow-hidden" style={{ touchAction: 'none' }}>
+      <div className="flex-1 flex items-center justify-center relative overflow-hidden p-2 sm:p-4" style={{ touchAction: 'none' }}>
         {selectedTemplate ? (
-          <div className="relative flex items-center justify-center w-full h-full p-4">
+          <div className="relative flex items-center justify-center w-full h-full max-w-full">
             {/* CANVAS THIẾT KẾ */}
-            <div style={{ width: scaledW, height: scaledH, position: 'relative', touchAction: 'none', boxShadow: '0 30px 60px rgba(0,0,0,0.15)' }}>
+            <div style={{ width: scaledW, height: scaledH, position: 'relative', touchAction: 'none', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, width: 1080, height: 1350, transform: `scale(${previewScale})`, transformOrigin: 'top left', background: '#fff', touchAction: 'none' }}>
                 <div data-canvas="true" style={{ position: 'absolute', inset: 0, touchAction: 'none', backgroundColor: '#fff' }} onClick={() => setSelectedBox(null)}>
                   <img src={selectedTemplate.image} crossOrigin="anonymous" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill' }} alt="Preview Base" />
@@ -208,58 +197,59 @@ const PosterPreview = ({
               </div>
             </div>
 
-            {/* ─── MENU ĐIỀU KHIỂN NẰM BÊN PHẢI (FIXED SIDEBAR) ─── */}
+            {/* ─── SIDEBAR EDITOR GỌN GÀNG ─── */}
             {selectedBox && (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-3 p-3 bg-white/90 backdrop-blur-xl shadow-2xl rounded-[32px] border-2 border-blue-500 animate-in slide-in-from-right duration-500 z-[200] max-w-[85px]">
-                 {/* Bật/Tắt bóng */}
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-2 p-2 bg-white/95 backdrop-blur-md shadow-xl rounded-2xl border border-slate-200 z-[200] max-h-[90%] overflow-y-auto scrollbar-hide animate-in slide-in-from-right-4 duration-300">
+                 {/* Bóng */}
                  <button 
                    onClick={() => setShowShadow(!showShadow)}
-                   className={`w-14 h-14 rounded-full flex flex-col items-center justify-center gap-1 transition-all shadow-lg ${showShadow ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}
+                   className={`w-10 h-10 rounded-full flex flex-col items-center justify-center transition-all ${showShadow ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-500'}`}
                  >
-                    <Sparkles className="w-6 h-6" />
-                    <span className="text-[7px] font-black uppercase tracking-tighter leading-none">Bóng</span>
+                    <Sparkles className="w-5 h-5" />
+                    <span className="text-[6px] font-black uppercase leading-none mt-0.5">BÓNG</span>
                  </button>
 
-                 <div className="w-full h-px bg-slate-200 my-1" />
+                 <div className="w-full h-px bg-slate-100" />
 
-                 {/* Màu sắc dọc */}
-                 <div className="flex flex-col gap-2 items-center">
+                 {/* Màu */}
+                 <div className="flex flex-col gap-2">
                     {colors.map(c => (
                        <button 
                          key={c.value} 
                          onClick={() => setActiveStyle(prev => ({ ...prev, color: c.value }))}
-                         className={`w-12 h-12 rounded-full border-4 border-white shadow-md flex items-center justify-center transition-transform active:scale-90`}
+                         className={`w-9 h-9 rounded-full border-2 border-white shadow-sm flex items-center justify-center transition-transform active:scale-90`}
                          style={{ backgroundColor: c.value }}
                        >
-                         {activeStyle.color === c.value && <Check className={`w-6 h-6 ${c.value === '#FFFF00' || c.value === '#00FF00' ? 'text-blue-600' : 'text-white'}`} />}
+                         {activeStyle.color === c.value && <Check className={`w-5 h-5 ${c.value === '#FFFF00' ? 'text-blue-600' : 'text-white'}`} />}
                        </button>
                     ))}
                  </div>
 
-                 <div className="w-full h-px bg-slate-200 my-1" />
+                 <div className="w-full h-px bg-slate-100" />
 
-                 {/* Điều hướng 4 chiều */}
-                 <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => nudge(0, -5)} className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center shadow-sm active:bg-blue-100"><ChevronUp className="w-6 h-6 text-blue-600" /></button>
-                    <button onClick={() => nudge(0, 5)} className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center shadow-sm active:bg-blue-100"><ChevronDown className="w-6 h-6 text-blue-600" /></button>
-                    <button onClick={() => nudge(-5, 0)} className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center shadow-sm active:bg-blue-100"><ChevronLeft className="w-6 h-6 text-blue-600" /></button>
-                    <button onClick={() => nudge(5, 0)} className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center shadow-sm active:bg-blue-100"><ChevronRight className="w-6 h-6 text-blue-600" /></button>
+                 {/* Di chuyển */}
+                 <div className="grid grid-cols-2 gap-1.5">
+                    <button onClick={() => nudge(0, -5)} className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center active:bg-blue-50 border border-slate-100"><ChevronUp className="w-5 h-5 text-blue-600" /></button>
+                    <button onClick={() => nudge(0, 5)} className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center active:bg-blue-50 border border-slate-100"><ChevronDown className="w-5 h-5 text-blue-600" /></button>
+                    <button onClick={() => nudge(-5, 0)} className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center active:bg-blue-50 border border-slate-100"><ChevronLeft className="w-5 h-5 text-blue-600" /></button>
+                    <button onClick={() => nudge(5, 0)} className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center active:bg-blue-50 border border-slate-100"><ChevronRight className="w-5 h-5 text-blue-600" /></button>
                  </div>
 
-                 <div className="w-full h-px bg-slate-200 my-1" />
+                 <div className="w-full h-px bg-slate-100" />
 
-                 <div className="flex flex-col gap-2">
-                    <button onClick={() => setActiveStyle(prev => ({ ...prev, fontSize: prev.fontSize + 4 }))} className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black active:scale-90 shadow-lg text-lg">A+</button>
-                    <button onClick={() => setActiveStyle(prev => ({ ...prev, fontSize: Math.max(12, prev.fontSize - 4) }))} className="w-12 h-12 bg-slate-200 text-slate-700 rounded-2xl flex items-center justify-center font-black active:scale-90 text-lg">A-</button>
+                 {/* Cỡ chữ */}
+                 <div className="flex flex-col gap-1.5">
+                    <button onClick={() => setActiveStyle(prev => ({ ...prev, fontSize: prev.fontSize + 4 }))} className="w-9 h-9 bg-blue-600 text-white rounded-lg flex items-center justify-center font-black active:scale-90 shadow-md text-xs">A+</button>
+                    <button onClick={() => setActiveStyle(prev => ({ ...prev, fontSize: Math.max(12, prev.fontSize - 4) }))} className="w-9 h-9 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center font-black active:scale-90 text-xs border border-slate-100">A-</button>
                  </div>
 
-                 <button onClick={() => setSelectedBox(null)} className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center active:bg-red-100 mt-2">
-                    <X className="w-6 h-6" />
+                 <button onClick={() => setSelectedBox(null)} className="w-9 h-9 bg-red-50 text-red-500 rounded-full flex items-center justify-center active:bg-red-100 mt-1">
+                    <X className="w-5 h-5" />
                  </button>
               </div>
             )}
           </div>
-        ) : <p className="text-xs font-bold text-slate-400 font-mono tracking-tighter">PREPARING CANVAS...</p>}
+        ) : <p className="text-xs font-black text-slate-400 italic">LOADING CANVAS...</p>}
       </div>
     </div>
   );
