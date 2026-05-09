@@ -13,11 +13,6 @@ const STYLE_BOTTOM_CENTER = {
   phone: { left: 180, top: 1210, width: 420, height: 70, fontSize: 48, color: '#003B8F', fontWeight: 900, align: 'center' }
 };
 
-const STYLE_LEFT_ALIGNED = {
-  name:  { left: 100, top: 1120, width: 400, height: 60, fontSize: 34, color: '#003B8F', fontWeight: 900, align: 'left' },
-  phone: { left: 100, top: 1215, width: 400, height: 70, fontSize: 46, color: '#003B8F', fontWeight: 900, align: 'left' }
-};
-
 const templates = [
   { id: 'mau-1', name: 'Mẫu 1',  image: '/templates/mau-1.png', ...STYLE_BOTTOM_CENTER },
   { id: 'mau-2', name: 'Mẫu 2',  image: '/templates/mau-2.png', ...STYLE_BOTTOM_CENTER },
@@ -64,12 +59,10 @@ export default function PosterGenerator() {
 
   const handleSelectTemplate = (tpl) => {
     setSelectedTemplate(tpl);
-    // Apply template-specific positions
     setNameStyle({ ...tpl.name });
     setPhoneStyle({ ...tpl.phone });
   };
 
-  /* ── Scale calculation ── */
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
@@ -141,10 +134,20 @@ export default function PosterGenerator() {
       </div>
 
       <div className="max-w-[1500px] mx-auto">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+        {/* Version Badge */}
+        <div className="mb-4 flex justify-center">
+          <span className="px-3 py-1 bg-slate-200 text-slate-500 text-[10px] font-bold rounded-full uppercase tracking-tighter">
+            Build: 2026.05.09.11 - Mobile Optim v2
+          </span>
+        </div>
 
-          {/* ── Left Column: Form (TOP on Mobile) ── */}
-          <div className="xl:col-span-4 order-first pb-10 xl:pb-0">
+        <div className="flex flex-col xl:grid xl:grid-cols-12 gap-5 items-start">
+
+          {/* ── Left Column: Form (FORCE TOP ON MOBILE via style.order) ── */}
+          <div 
+            className="w-full xl:col-span-4 pb-10 xl:pb-0"
+            style={{ order: -1 }} 
+          >
             {designMode ? (
               <div className="animate-in slide-in-from-left-4 duration-300">
                 <DesignPanel
@@ -177,10 +180,11 @@ export default function PosterGenerator() {
             )}
           </div>
 
-          {/* ── Right Column: Canvas (BOTTOM on Mobile) ── */}
+          {/* ── Right Column: Canvas (FORCE BOTTOM ON MOBILE) ── */}
           <div
             ref={containerRef}
-            className="xl:col-span-8 order-last xl:order-none xl:sticky xl:top-22 h-[480px] sm:h-[600px] xl:h-[calc(100vh-7rem)] rounded-2xl overflow-hidden shadow-canvas bg-[#F1F5F9] bg-canvas-pattern border border-slate-200/80 flex flex-col"
+            className="w-full xl:col-span-8 xl:sticky xl:top-22 h-[480px] sm:h-[600px] xl:h-[calc(100vh-7rem)] rounded-2xl overflow-hidden shadow-canvas bg-[#F1F5F9] bg-canvas-pattern border border-slate-200/80 flex flex-col"
+            style={{ order: 1 }}
           >
             <PosterPreview
               posterRef={posterRef}
