@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Loader2, Move, X, Palette, Check, Type } from 'lucide-react';
+import { Download, Loader2, Move, X, Palette, Check, Type, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /* ─── Draggable Text Box ─────────────────────────────────── */
 const DraggableTextBox = ({
@@ -68,8 +68,16 @@ const DraggableTextBox = ({
     window.addEventListener('touchend', handleEnd);
   };
 
+  const nudge = (dx, dy) => {
+    setBoxStyle(prev => ({
+      ...prev,
+      left: Math.max(0, Math.min(1080 - prev.width, prev.left + dx)),
+      top: Math.max(0, Math.min(1350 - prev.height, prev.top + dy))
+    }));
+  };
+
   const showActiveState = isSelected && !isExporting;
-  const handleSize = Math.max(14, 28 / (posterScale || 1)); 
+  const handleSize = Math.max(24, 48 / (posterScale || 1)); 
 
   const textGradientStyle = {
     background: boxStyle.color === '#FFFF00' 
@@ -81,8 +89,6 @@ const DraggableTextBox = ({
 
   const colors = [
     { name: 'Vàng', value: '#FFFF00' },
-    { name: 'Trắng', value: '#FFFFFF' },
-    { name: 'Xanh lơ', value: '#00FFFF' },
     { name: 'Đỏ', value: '#FF0000' },
     { name: 'ASEAN', value: '#003399' },
     { name: 'Đen', value: '#000000' }
@@ -99,7 +105,7 @@ const DraggableTextBox = ({
         minWidth: `${boxStyle.width}px`, 
         height: 'auto',
         cursor: isExporting ? 'default' : 'move',
-        border: showActiveState ? `1.5px dashed #3B82F6` : 'none',
+        border: showActiveState ? `2px dashed #3B82F6` : 'none',
         boxSizing: 'border-box',
         touchAction: 'none',
         zIndex: isSelected ? 100 : 10,
@@ -108,37 +114,43 @@ const DraggableTextBox = ({
       onMouseDown={e => startDrag(e, 1)}
       onTouchStart={e => startDrag(e, 1)}
     >
-      {/* ─── POPUP CHỈNH SỬA TẠI CHỖ (CHỈ HIỆN KHI CHỌN) ─── */}
+      {/* ─── POPUP CHỈNH SỬA TẠI CHỖ (LỚN HƠN + ĐIỀU HƯỚNG 4 CHIỀU) ─── */}
       {showActiveState && (
         <div 
-          className="absolute left-1/2 -translate-x-1/2 -top-16 bg-white shadow-2xl rounded-2xl p-2 flex items-center gap-2 border border-slate-200 animate-in zoom-in slide-in-from-bottom-2"
+          className="absolute left-1/2 -translate-x-1/2 -top-28 bg-white shadow-2xl rounded-3xl p-3 flex flex-col items-center gap-3 border-2 border-blue-500 animate-in zoom-in slide-in-from-bottom-4 z-[200]"
           onMouseDown={e => e.stopPropagation()}
           onTouchStart={e => e.stopPropagation()}
         >
-          <div className="flex items-center gap-1.5 px-1 border-r pr-2">
+          {/* Hàng 1: Màu sắc */}
+          <div className="flex items-center gap-3 pb-2 border-b w-full justify-center">
              {colors.map(c => (
                <button 
                  key={c.value} 
                  onClick={() => setBoxStyle(prev => ({ ...prev, color: c.value }))}
-                 className={`w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center transition-transform active:scale-90`}
+                 className={`w-9 h-9 rounded-full border-2 border-slate-200 flex items-center justify-center transition-transform active:scale-90`}
                  style={{ backgroundColor: c.value }}
                >
-                 {boxStyle.color === c.value && <Check className={`w-4 h-4 ${c.value === '#FFFFFF' || c.value === '#FFFF00' ? 'text-blue-600' : 'text-white'}`} />}
+                 {boxStyle.color === c.value && <Check className={`w-5 h-5 ${c.value === '#FFFF00' ? 'text-blue-600' : 'text-white'}`} />}
                </button>
              ))}
           </div>
-          <button 
-            onClick={() => setBoxStyle(prev => ({ ...prev, fontSize: prev.fontSize + 2 }))}
-            className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200"
-          >
-            <Type className="w-4 h-4 text-slate-600" />+
-          </button>
-          <button 
-            onClick={() => setBoxStyle(prev => ({ ...prev, fontSize: Math.max(12, prev.fontSize - 2) }))}
-            className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200"
-          >
-            <Type className="w-4 h-4 text-slate-600" />-
-          </button>
+
+          {/* Hàng 2: Điều hướng & Cỡ chữ */}
+          <div className="flex items-center gap-4">
+             <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl">
+                <div />
+                <button onClick={() => nudge(0, -5)} className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm active:bg-blue-50"><ChevronUp className="w-5 h-5 text-blue-600" /></button>
+                <div />
+                <button onClick={() => nudge(-5, 0)} className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm active:bg-blue-50"><ChevronLeft className="w-5 h-5 text-blue-600" /></button>
+                <button onClick={() => nudge(0, 5)} className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm active:bg-blue-50"><ChevronDown className="w-5 h-5 text-blue-600" /></button>
+                <button onClick={() => nudge(5, 0)} className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm active:bg-blue-50"><ChevronRight className="w-5 h-5 text-blue-600" /></button>
+             </div>
+
+             <div className="flex flex-col gap-1">
+                <button onClick={() => setBoxStyle(prev => ({ ...prev, fontSize: prev.fontSize + 4 }))} className="w-10 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black active:scale-90 shadow-lg shadow-blue-200">A+</button>
+                <button onClick={() => setBoxStyle(prev => ({ ...prev, fontSize: Math.max(12, prev.fontSize - 4) }))} className="w-10 h-9 bg-slate-200 text-slate-700 rounded-xl flex items-center justify-center font-black active:scale-90">A-</button>
+             </div>
+          </div>
         </div>
       )}
 
@@ -146,7 +158,7 @@ const DraggableTextBox = ({
         ref={textRef}
         style={{
           display: 'inline-block',
-          padding: '0 5px',
+          padding: '0 8px',
           fontSize: `${boxStyle.fontSize}px`,
           color: boxStyle.color,
           fontWeight: boxStyle.fontWeight,
@@ -154,7 +166,7 @@ const DraggableTextBox = ({
           pointerEvents: 'none',
           fontFamily: 'inherit',
           lineHeight: 1.1,
-          filter: showShadow ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.6))' : 'none',
+          filter: showShadow ? 'drop-shadow(0px 4px 8px rgba(0,0,0,0.7))' : 'none',
           ...textGradientStyle
         }}
       >
@@ -166,13 +178,19 @@ const DraggableTextBox = ({
           onMouseDown={e => startDrag(e, 2)}
           onTouchStart={e => startDrag(e, 2)}
           style={{
-            position: 'absolute', bottom: -handleSize / 3, right: -handleSize / 3,
+            position: 'absolute', bottom: -handleSize / 2.5, right: -handleSize / 2.5,
             width: handleSize, height: handleSize,
             background: '#3B82F6', borderRadius: '50%',
             cursor: 'se-resize', zIndex: 60,
-            border: '2.5px solid white',
+            border: '4px solid white',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+            display: 'flex', alignItems: 'center', justifyCenter: 'center'
           }}
-        />
+        >
+           <div className="w-full h-full flex items-center justify-center">
+              <div className="w-1/2 h-1/2 border-r-2 border-b-2 border-white rotate-45 transform translate-x-[-1px] translate-y-[-1px]" />
+           </div>
+        </div>
       )}
     </div>
   );
@@ -193,7 +211,7 @@ const PosterPreview = ({
 
   return (
     <div className="relative w-full h-full flex flex-col bg-white overflow-hidden">
-      {/* ─── POSTER ẨN (FIXED ĐỂ CHỐNG MẤT GÓC) ─── */}
+      {/* ─── POSTER ẨN (CHỐNG MẤT GÓC) ─── */}
       <div style={{ position: 'fixed', left: '-5000px', top: 0, width: 1080, height: 1350, zIndex: -100, overflow: 'visible' }}>
         <div ref={exportRef} style={{ position: 'relative', width: 1080, height: 1350, backgroundColor: '#fff', overflow: 'visible' }}>
           <img src={selectedTemplate?.image} crossOrigin="anonymous" style={{ width: '100%', height: '100%', objectFit: 'fill' }} alt="Export Base" />
@@ -207,7 +225,7 @@ const PosterPreview = ({
         <div className="flex items-center gap-2 text-slate-800">
           <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
           <h4 className="text-[10px] font-black uppercase tracking-widest">
-             {isExporting ? 'Đang tạo bản xem trước...' : 'Thiết kế Poster'}
+             {isExporting ? 'Đang tạo bản xem trước...' : 'Thiết kế Poster Chuyên Nghiệp'}
           </h4>
         </div>
       </div>
@@ -223,7 +241,7 @@ const PosterPreview = ({
               </div>
             </div>
           </div>
-        ) : <p className="text-xs font-bold text-slate-400 font-mono">LOADING TEMPLATE...</p>}
+        ) : <p className="text-xs font-bold text-slate-400 font-mono tracking-tighter">ĐANG TẢI DỮ LIỆU...</p>}
       </div>
     </div>
   );

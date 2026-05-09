@@ -148,7 +148,7 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 6.5 - Mai Trường An - 0905012131
+            Version 6.6 - Mai Trường An - 0905012131
           </span>
         </div>
 
