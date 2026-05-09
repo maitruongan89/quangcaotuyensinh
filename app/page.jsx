@@ -78,8 +78,8 @@ export default function PosterGenerator() {
       if (containerRef.current) {
         const h = containerRef.current.offsetHeight;
         const w = containerRef.current.offsetWidth;
-        const availH = h - 60; 
-        const availW = w - 32;
+        const availH = h - 100; // Tăng khoảng cách đệm để không bị che
+        const availW = w - 40;
         const scale = Math.min(availH / 1350, availW / 1080);
         setPreviewScale(Math.max(0.1, scale));
       }
@@ -103,16 +103,28 @@ export default function PosterGenerator() {
   const handleDownload = async () => {
     if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ thông tin."); return; }
     setIsExporting(true);
+    
+    // Đảm bảo ảnh base đã load xong trước khi chụp
     setTimeout(async () => {
       try {
         if (!exportRef.current) return;
-        const dataUrl = await toPng(exportRef.current, { width: 1080, height: 1350, pixelRatio: 2, cacheBust: true });
+        const dataUrl = await toPng(exportRef.current, { 
+          width: 1080, 
+          height: 1350, 
+          pixelRatio: 3, // Tăng độ nét lên mức tối đa
+          cacheBust: true,
+          style: { transform: 'none' } // Loại bỏ mọi biến dạng khi chụp
+        });
         const link = document.createElement('a');
         link.download = `poster-${teacherName.toLowerCase().replace(/\s+/g, '-')}.png`;
         link.href = dataUrl;
         link.click();
-      } catch (err) { alert('Lỗi xuất ảnh. Hãy thử lại.'); } finally { setIsExporting(false); }
-    }, 300);
+      } catch (err) { 
+        alert('Lỗi xuất ảnh. Hãy thử lại.'); 
+      } finally { 
+        setIsExporting(false); 
+      }
+    }, 500);
   };
 
   return (
@@ -135,7 +147,7 @@ export default function PosterGenerator() {
               <HeroForm teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} onStart={handleStartDesign} isExporting={isExporting} />
             )}
           </div>
-          <div ref={containerRef} className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[520px] sm:h-[650px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}>
+          <div ref={containerRef} className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[550px] sm:h-[700px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}>
             <PosterPreview exportRef={exportRef} previewScale={previewScale} selectedTemplate={selectedTemplate} teacherName={teacherName} phone={phone} formatPhoneNumber={formatPhoneNumber} isExporting={isExporting} handleDownload={handleDownload} nameStyle={nameStyle} setNameStyle={setNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} designMode={designMode} />
           </div>
         </div>
