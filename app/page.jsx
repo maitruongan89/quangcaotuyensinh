@@ -6,13 +6,12 @@ import Header from '@/components/Header';
 import HeroForm from '@/components/HeroForm';
 import DesignPanel from '@/components/DesignPanel';
 import PosterPreview from '@/components/PosterPreview';
-import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X, Download, Eye } from 'lucide-react';
+import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X, Download, Eye, Maximize2, Check } from 'lucide-react';
 
 /* ─── Template Style Presets ─── */
 const DEFAULT_TEXT_COLOR = '#FFFF00'; 
-const DARK_BLUE_COLOR = '#003399'; // Màu xanh đậm cho Mẫu 1 & 2
+const DARK_BLUE_COLOR = '#003399'; 
 
-// Tọa độ riêng cho Mẫu 1 & 2 (Căn chỉnh vào ô trắng góc dưới trái)
 const STYLE_MAU_1_2 = {
   defaultNameStyle:  { left: 325, top: 812, width: 330, height: 45, fontSize: 32, color: DARK_BLUE_COLOR, fontWeight: 900, align: 'left' },
   defaultPhoneStyle: { left: 325, top: 846, width: 330, height: 45, fontSize: 32, color: DARK_BLUE_COLOR, fontWeight: 900, align: 'left' }
@@ -65,6 +64,7 @@ export default function PosterGenerator() {
   const [teacherName, setTeacherName] = useState('');
   const [phone, setPhone] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0]);
+  const [zoomedTemplate, setZoomedTemplate] = useState(null); // Modal phóng to ảnh mẫu
   const [isExporting, setIsExporting] = useState(false);
   const [previewScale, setPreviewScale] = useState(0.4);
   const [designMode, setDesignMode] = useState(false);
@@ -80,6 +80,7 @@ export default function PosterGenerator() {
     setSelectedTemplate(tpl);
     setNameStyle({ ...tpl.defaultNameStyle });
     setPhoneStyle({ ...tpl.defaultPhoneStyle });
+    setZoomedTemplate(null);
   };
 
   useEffect(() => {
@@ -147,11 +148,11 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 6.3 - Mai Trường An - 0905012131
+            Version 6.4 - Mai Trường An - 0905012131
           </span>
         </div>
 
-        <TemplateStrip templates={templates} selectedTemplate={selectedTemplate} onSelect={handleSelectTemplate} />
+        <TemplateStrip templates={templates} selectedTemplate={selectedTemplate} onSelect={setZoomedTemplate} />
 
         <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start">
           <div className="w-full xl:col-span-4" style={{ order: designMode ? -1 : 0 }}>
@@ -188,6 +189,28 @@ export default function PosterGenerator() {
         </div>
       </div>
 
+      {/* ─── MODAL PHÓNG TO ẢNH MẪU ĐỂ CHỌN ─── */}
+      {zoomedTemplate && (
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in zoom-in duration-300">
+           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="px-6 py-4 border-b flex items-center justify-between">
+                 <h3 className="text-lg font-black text-slate-800">XEM MẪU THIẾT KẾ</h3>
+                 <button onClick={() => setZoomedTemplate(null)} className="p-2 hover:bg-slate-100 rounded-full"><X className="w-5 h-5 text-slate-500" /></button>
+              </div>
+              <div className="flex-1 overflow-auto bg-slate-100 p-4">
+                 <img src={zoomedTemplate.image} className="w-full h-auto rounded-xl shadow-lg border-2 border-white" alt="Zoomed Template" />
+              </div>
+              <div className="p-6 bg-white border-t flex flex-col gap-3">
+                 <button onClick={() => handleSelectTemplate(zoomedTemplate)} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 transition-transform active:scale-95">
+                    <Check className="w-6 h-6" /> SỬ DỤNG MẪU NÀY
+                 </button>
+                 <button onClick={() => setZoomedTemplate(null)} className="w-full py-3 bg-slate-50 text-slate-500 rounded-xl text-sm font-bold">Quay lại</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* ─── MODAL XEM TRƯỚC KẾT QUẢ XUẤT ─── */}
       {exportImageUrl && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
           <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
@@ -231,6 +254,7 @@ const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
           <LayoutTemplate className="w-4 h-4 text-blue-600" />
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-700">Thư viện mẫu thiết kế</h3>
         </div>
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">Chạm vào mẫu để phóng to</span>
       </div>
       <div className="flex items-center gap-2 p-3">
         <button onClick={() => stripRef.current?.scrollBy({ left: -240, behavior: 'smooth' })} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shadow-sm text-slate-400 hover:text-blue-600"><ChevronLeft className="w-4 h-4" /></button>
@@ -238,9 +262,12 @@ const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
           {templates.map((tpl) => {
             const isActive = selectedTemplate?.id === tpl.id;
             return (
-              <div key={tpl.id} className="shrink-0 flex flex-col items-center gap-1.5">
+              <div key={tpl.id} className="shrink-0 flex flex-col items-center gap-1.5 group">
                 <div className={`relative rounded-xl overflow-hidden w-[75px] h-[95px] cursor-pointer transition-all ${isActive ? 'ring-4 ring-blue-600 ring-offset-2' : 'hover:ring-2 hover:ring-slate-300'}`} onClick={() => onSelect(tpl)}>
                   <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                     <Maximize2 className="w-6 h-6 text-white" />
+                  </div>
                   {isActive && <div className="absolute top-1 right-1 bg-blue-600 rounded-full p-0.5"><CheckCircle2 className="w-3 h-3 text-white fill-white" /></div>}
                 </div>
                 <span className={`text-[10px] font-bold truncate w-[75px] text-center ${isActive ? 'text-blue-600' : 'text-slate-400'}`}>{tpl.name}</span>
