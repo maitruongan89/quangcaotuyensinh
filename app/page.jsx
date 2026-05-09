@@ -143,8 +143,8 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
 
-          {/* ── Left Column: Form (Top on Mobile) ── */}
-          <div className="xl:col-span-4 pb-10 xl:pb-0">
+          {/* ── Left Column: Form (TOP on Mobile) ── */}
+          <div className="xl:col-span-4 order-first pb-10 xl:pb-0">
             {designMode ? (
               <div className="animate-in slide-in-from-left-4 duration-300">
                 <DesignPanel
@@ -177,10 +177,10 @@ export default function PosterGenerator() {
             )}
           </div>
 
-          {/* ── Right Column: Canvas ── */}
+          {/* ── Right Column: Canvas (BOTTOM on Mobile) ── */}
           <div
             ref={containerRef}
-            className="xl:col-span-8 xl:sticky xl:top-22 h-[480px] sm:h-[600px] xl:h-[calc(100vh-7rem)] rounded-2xl overflow-hidden shadow-canvas bg-[#F1F5F9] bg-canvas-pattern border border-slate-200/80 flex flex-col"
+            className="xl:col-span-8 order-last xl:order-none xl:sticky xl:top-22 h-[480px] sm:h-[600px] xl:h-[calc(100vh-7rem)] rounded-2xl overflow-hidden shadow-canvas bg-[#F1F5F9] bg-canvas-pattern border border-slate-200/80 flex flex-col"
           >
             <PosterPreview
               posterRef={posterRef}
