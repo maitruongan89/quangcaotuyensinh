@@ -8,18 +8,22 @@ import DesignPanel from '@/components/DesignPanel';
 import PosterPreview from '@/components/PosterPreview';
 import { LayoutTemplate, ChevronLeft, ChevronRight, CheckCircle2, X } from 'lucide-react';
 
-/* ─── Template Style Presets ─── */
+/* ─── Template Style Presets (MÀU CHỮ MỚI: TRẮNG & GRADIENT) ─── */
+
+// Sử dụng màu trắng tinh khiết để nổi bật nhất trên nền xanh
+const DEFAULT_TEXT_COLOR = '#FFFFFF'; 
+
 const STYLE_STACK_BOTTOM = {
-  defaultNameStyle:  { left: 235, top: 1115, width: 440, height: 60, fontSize: 38, color: '#003B8F', fontWeight: 900, align: 'left' },
-  defaultPhoneStyle: { left: 235, top: 1212, width: 440, height: 70, fontSize: 52, color: '#003B8F', fontWeight: 900, align: 'left' }
+  defaultNameStyle:  { left: 235, top: 1115, width: 440, height: 60, fontSize: 38, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 235, top: 1212, width: 440, height: 70, fontSize: 52, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' }
 };
 const STYLE_SIDE_BY_SIDE = {
-  defaultNameStyle:  { left: 105, top: 1042, width: 360, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' },
-  defaultPhoneStyle: { left: 575, top: 1042, width: 375, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' }
+  defaultNameStyle:  { left: 105, top: 1042, width: 360, height: 55, fontSize: 32, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 575, top: 1042, width: 375, height: 55, fontSize: 32, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' }
 };
 const STYLE_SIDE_BY_SIDE_ALT = {
-  defaultNameStyle:  { left: 105, top: 1120, width: 360, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' },
-  defaultPhoneStyle: { left: 575, top: 1120, width: 375, height: 55, fontSize: 32, color: '#003B8F', fontWeight: 900, align: 'left' }
+  defaultNameStyle:  { left: 105, top: 1120, width: 360, height: 55, fontSize: 32, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' },
+  defaultPhoneStyle: { left: 575, top: 1120, width: 375, height: 55, fontSize: 32, color: DEFAULT_TEXT_COLOR, fontWeight: 900, align: 'left' }
 };
 
 const templates = [
@@ -51,69 +55,6 @@ const templates = [
   { id: 'c24', name: 'Mẫu 26', image: '/templates/ChatGPT Image 23_19_32 8 thg 5, 2026 (3).png', ...STYLE_SIDE_BY_SIDE_ALT },
   { id: 'c25', name: 'Mẫu 27', image: '/templates/ChatGPT Image 23_19_33 8 thg 5, 2026 (4).png', ...STYLE_SIDE_BY_SIDE_ALT },
 ];
-
-/* ─── Template Preview Modal ─── */
-const TemplatePreviewModal = ({ template, templates, onClose, onSelect, selectedTemplate }) => {
-  const [current, setCurrent] = useState(templates.findIndex(t => t.id === template.id));
-  const tpl = templates[current];
-  const isSelected = selectedTemplate?.id === tpl.id;
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="relative bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden max-w-sm w-full animate-in zoom-in-95">
-        <div className="flex items-center justify-between px-4 py-3 border-b"><h3 className="text-sm font-black">{tpl.name}</h3><button onClick={onClose} className="p-1 text-slate-400"><X /></button></div>
-        <div className="relative bg-slate-100 flex items-center justify-center min-h-[400px]">
-          <img src={tpl.image} alt={tpl.name} className="w-full object-contain max-h-[500px]" />
-          <button onClick={() => setCurrent(i => (i - 1 + templates.length) % templates.length)} className="absolute left-2 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center"><ChevronLeft /></button>
-          <button onClick={() => setCurrent(i => (i + 1) % templates.length)} className="absolute right-2 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center"><ChevronRight /></button>
-        </div>
-        <div className="p-4 flex gap-2">
-          <button onClick={onClose} className="flex-1 py-3 border rounded-xl font-bold">Đóng</button>
-          <button onClick={() => { onSelect(tpl); onClose(); }} className={`flex-1 py-3 rounded-xl font-bold text-white ${isSelected ? 'bg-emerald-600' : 'bg-blue-600'}`}>{isSelected ? 'Đang dùng' : 'Chọn mẫu'}</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ─── Global Template Strip ─── */
-const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
-  const [previewTpl, setPreviewTpl] = useState(null);
-  const stripRef = useRef(null);
-  return (
-    <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-        <div className="flex items-center gap-2">
-          <LayoutTemplate className="w-4 h-4 text-blue-600" />
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-700">Thư viện mẫu thiết kế</h3>
-        </div>
-        <span className="text-[10px] font-bold text-slate-400 bg-white px-2 py-1 rounded-full border border-slate-200">{templates.length} mẫu</span>
-      </div>
-      <div className="flex items-center gap-2 p-3">
-        <button onClick={() => stripRef.current?.scrollBy({ left: -240, behavior: 'smooth' })} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shadow-sm text-slate-400 hover:text-blue-600"><ChevronLeft className="w-4 h-4" /></button>
-        <div ref={stripRef} className="flex-1 flex gap-3 overflow-x-auto scrollbar-hide py-1">
-          {templates.map((tpl) => {
-            const isActive = selectedTemplate?.id === tpl.id;
-            return (
-              <div key={tpl.id} className="shrink-0 flex flex-col items-center gap-1.5">
-                <div className={`relative rounded-xl overflow-hidden w-[75px] h-[95px] cursor-pointer transition-all ${isActive ? 'ring-4 ring-blue-600 ring-offset-2' : 'hover:ring-2 hover:ring-slate-300'}`} onClick={() => onSelect(tpl)}>
-                  <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <button onClick={e => { e.stopPropagation(); setPreviewTpl(tpl); }} className="bg-white text-slate-900 text-[10px] font-black px-2 py-1 rounded-lg shadow-xl">XEM</button>
-                  </div>
-                  {isActive && <div className="absolute top-1 right-1 bg-blue-600 rounded-full p-0.5"><CheckCircle2 className="w-3 h-3 text-white fill-white" /></div>}
-                  <button onClick={e => { e.stopPropagation(); setPreviewTpl(tpl); }} className="lg:hidden absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] font-black py-1">XEM</button>
-                </div>
-                <span className={`text-[10px] font-bold truncate w-[75px] text-center ${isActive ? 'text-blue-600' : 'text-slate-400'}`}>{tpl.name}</span>
-              </div>
-            );
-          })}
-        </div>
-        <button onClick={() => stripRef.current?.scrollBy({ left: 240, behavior: 'smooth' })} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shadow-sm text-slate-400 hover:text-blue-600"><ChevronRight className="w-4 h-4" /></button>
-      </div>
-      {previewTpl && <TemplatePreviewModal template={previewTpl} templates={templates} onClose={() => setPreviewTpl(null)} onSelect={onSelect} selectedTemplate={selectedTemplate} />}
-    </div>
-  );
-};
 
 export default function PosterGenerator() {
   const [teacherName, setTeacherName] = useState('');
@@ -165,28 +106,21 @@ export default function PosterGenerator() {
     if (!teacherName.trim() || !phone.trim()) { alert("Vui lòng nhập đầy đủ thông tin."); return; }
     setIsExporting(true);
     
-    // Đợi 200ms để đảm bảo UI đã ẩn hết các khung chọn trước khi chụp
     setTimeout(async () => {
       try {
         if (!posterRef.current) return;
-        // Xuất ảnh chất lượng cao 2x pixelRatio
         const dataUrl = await toPng(posterRef.current, { 
           width: 1080, 
           height: 1350, 
           pixelRatio: 2,
-          cacheBust: true,
-          style: {
-            transform: 'none',
-            transformOrigin: 'top left'
-          }
+          cacheBust: true
         });
         const link = document.createElement('a');
         link.download = `poster-${teacherName.toLowerCase().replace(/\s+/g, '-')}.png`;
         link.href = dataUrl;
         link.click();
       } catch (err) { 
-        alert('Lỗi xuất ảnh. Hãy thử tải lại trang và thử lại.'); 
-        console.error(err);
+        alert('Lỗi xuất ảnh. Hãy thử lại.'); 
       } finally { 
         setIsExporting(false); 
       }
@@ -199,18 +133,15 @@ export default function PosterGenerator() {
       <div className="fixed inset-0 pointer-events-none -z-10 bg-gradient-to-b from-white to-slate-50" />
       
       <div className="max-w-[1500px] mx-auto">
-        {/* Version Badge */}
         <div className="mb-4 flex justify-center">
-          <span className="px-4 py-1.5 bg-blue-700 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl">
-            Version 4.0 - Mai Trường An
+          <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
+            Version 4.5 - Mai Trường An
           </span>
         </div>
 
-        {/* Global Template Library */}
         <TemplateStrip templates={templates} selectedTemplate={selectedTemplate} onSelect={handleSelectTemplate} />
 
         <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Form */}
           <div className="w-full xl:col-span-4" style={{ order: designMode ? -1 : 0 }}>
             {designMode ? (
               <DesignPanel teacherName={teacherName} setTeacherName={setTeacherName} phone={phone} setPhone={setPhone} nameStyle={nameStyle} setNameStyle={setNameStyle} defaultNameStyle={selectedTemplate.defaultNameStyle} phoneStyle={phoneStyle} setPhoneStyle={setPhoneStyle} defaultPhoneStyle={selectedTemplate.defaultPhoneStyle} onBack={() => setDesignMode(false)} onDownload={handleDownload} isExporting={isExporting} />
@@ -219,7 +150,6 @@ export default function PosterGenerator() {
             )}
           </div>
 
-          {/* Right Column: Canvas Container */}
           <div
             ref={containerRef}
             className={`w-full xl:col-span-8 rounded-2xl overflow-hidden shadow-canvas bg-white border border-slate-200 flex flex-col ${designMode ? 'h-[520px] sm:h-[650px] xl:h-[calc(100vh-10rem)]' : 'h-[400px] sm:h-[500px]'}`}
@@ -231,3 +161,41 @@ export default function PosterGenerator() {
     </div>
   );
 }
+
+const TemplateStrip = ({ templates, selectedTemplate, onSelect }) => {
+  const [previewTpl, setPreviewTpl] = useState(null);
+  const stripRef = useRef(null);
+  return (
+    <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+        <div className="flex items-center gap-2">
+          <LayoutTemplate className="w-4 h-4 text-blue-600" />
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-700">Thư viện mẫu thiết kế</h3>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 p-3">
+        <button onClick={() => stripRef.current?.scrollBy({ left: -240, behavior: 'smooth' })} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shadow-sm text-slate-400 hover:text-blue-600"><ChevronLeft className="w-4 h-4" /></button>
+        <div ref={stripRef} className="flex-1 flex gap-3 overflow-x-auto scrollbar-hide py-1">
+          {templates.map((tpl) => {
+            const isActive = selectedTemplate?.id === tpl.id;
+            return (
+              <div key={tpl.id} className="shrink-0 flex flex-col items-center gap-1.5">
+                <div className={`relative rounded-xl overflow-hidden w-[75px] h-[95px] cursor-pointer transition-all ${isActive ? 'ring-4 ring-blue-600 ring-offset-2' : 'hover:ring-2 hover:ring-slate-300'}`} onClick={() => onSelect(tpl)}>
+                  <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <button onClick={e => { e.stopPropagation(); setPreviewTpl(tpl); }} className="bg-white text-slate-900 text-[10px] font-black px-2 py-1 rounded-lg shadow-xl">XEM</button>
+                  </div>
+                  {isActive && <div className="absolute top-1 right-1 bg-blue-600 rounded-full p-0.5"><CheckCircle2 className="w-3 h-3 text-white fill-white" /></div>}
+                  <button onClick={e => { e.stopPropagation(); setPreviewTpl(tpl); }} className="lg:hidden absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] font-black py-1">XEM</button>
+                </div>
+                <span className={`text-[10px] font-bold truncate w-[75px] text-center ${isActive ? 'text-blue-600' : 'text-slate-400'}`}>{tpl.name}</span>
+              </div>
+            );
+          })}
+        </div>
+        <button onClick={() => stripRef.current?.scrollBy({ left: 240, behavior: 'smooth' })} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shadow-sm text-slate-400 hover:text-blue-600"><ChevronRight className="w-4 h-4" /></button>
+      </div>
+      {previewTpl && <TemplatePreviewModal template={previewTpl} templates={templates} onClose={() => setPreviewTpl(null)} onSelect={onSelect} selectedTemplate={selectedTemplate} />}
+    </div>
+  );
+};
