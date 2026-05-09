@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Loader2, Move, X } from 'lucide-react';
+import { Download, Loader2, Move, X, Palette, Check, Type } from 'lucide-react';
 
 /* ─── Draggable Text Box ─────────────────────────────────── */
 const DraggableTextBox = ({
@@ -79,6 +79,15 @@ const DraggableTextBox = ({
     WebkitTextFillColor: boxStyle.color === '#FFFF00' ? 'transparent' : 'inherit',
   };
 
+  const colors = [
+    { name: 'Vàng', value: '#FFFF00' },
+    { name: 'Trắng', value: '#FFFFFF' },
+    { name: 'Xanh lơ', value: '#00FFFF' },
+    { name: 'Đỏ', value: '#FF0000' },
+    { name: 'ASEAN', value: '#003399' },
+    { name: 'Đen', value: '#000000' }
+  ];
+
   return (
     <div
       ref={boxRef}
@@ -93,12 +102,46 @@ const DraggableTextBox = ({
         border: showActiveState ? `1.5px dashed #3B82F6` : 'none',
         boxSizing: 'border-box',
         touchAction: 'none',
-        zIndex: isSelected ? 50 : 10,
+        zIndex: isSelected ? 100 : 10,
         display: 'inline-block',
       }}
       onMouseDown={e => startDrag(e, 1)}
       onTouchStart={e => startDrag(e, 1)}
     >
+      {/* ─── POPUP CHỈNH SỬA TẠI CHỖ (CHỈ HIỆN KHI CHỌN) ─── */}
+      {showActiveState && (
+        <div 
+          className="absolute left-1/2 -translate-x-1/2 -top-16 bg-white shadow-2xl rounded-2xl p-2 flex items-center gap-2 border border-slate-200 animate-in zoom-in slide-in-from-bottom-2"
+          onMouseDown={e => e.stopPropagation()}
+          onTouchStart={e => e.stopPropagation()}
+        >
+          <div className="flex items-center gap-1.5 px-1 border-r pr-2">
+             {colors.map(c => (
+               <button 
+                 key={c.value} 
+                 onClick={() => setBoxStyle(prev => ({ ...prev, color: c.value }))}
+                 className={`w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center transition-transform active:scale-90`}
+                 style={{ backgroundColor: c.value }}
+               >
+                 {boxStyle.color === c.value && <Check className={`w-4 h-4 ${c.value === '#FFFFFF' || c.value === '#FFFF00' ? 'text-blue-600' : 'text-white'}`} />}
+               </button>
+             ))}
+          </div>
+          <button 
+            onClick={() => setBoxStyle(prev => ({ ...prev, fontSize: prev.fontSize + 2 }))}
+            className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200"
+          >
+            <Type className="w-4 h-4 text-slate-600" />+
+          </button>
+          <button 
+            onClick={() => setBoxStyle(prev => ({ ...prev, fontSize: Math.max(12, prev.fontSize - 2) }))}
+            className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200"
+          >
+            <Type className="w-4 h-4 text-slate-600" />-
+          </button>
+        </div>
+      )}
+
       <div 
         ref={textRef}
         style={{
@@ -161,10 +204,10 @@ const PosterPreview = ({
 
       {/* ─── UI XEM TRƯỚC ─── */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0 z-30">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-slate-800">
           <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
-          <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
-             {isExporting ? 'Đang tạo bản xem trước...' : 'Thiết kế trực quan'}
+          <h4 className="text-[10px] font-black uppercase tracking-widest">
+             {isExporting ? 'Đang tạo bản xem trước...' : 'Thiết kế Poster'}
           </h4>
         </div>
       </div>
@@ -180,7 +223,7 @@ const PosterPreview = ({
               </div>
             </div>
           </div>
-        ) : <p className="text-xs font-bold text-slate-400">Đang tải dữ liệu...</p>}
+        ) : <p className="text-xs font-bold text-slate-400 font-mono">LOADING TEMPLATE...</p>}
       </div>
     </div>
   );
