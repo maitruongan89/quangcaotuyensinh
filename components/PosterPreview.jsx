@@ -68,11 +68,19 @@ const DraggableTextBox = ({
     window.addEventListener('touchend', handleEnd);
   };
 
+  const nudge = (dx, dy) => {
+    setBoxStyle(prev => ({
+      ...prev,
+      left: Math.max(0, Math.min(1080 - prev.width, prev.left + dx)),
+      top: Math.max(0, Math.min(1350 - prev.height, prev.top + dy))
+    }));
+  };
+
   const showActiveState = isSelected && !isExporting;
   const handleSize = Math.max(26, 52 / (posterScale || 1)); 
 
-  // Shadow logic TUYỆT ĐỐI CHUẨN
-  const shadowValue = showShadow ? '3px 3px 10px rgba(0,0,0,0.9), -1px -1px 0 rgba(0,0,0,0.5)' : 'none';
+  // Shadow logic SIÊU MẠNH VÀ RÕ NÉT
+  const shadowValue = showShadow ? '4px 4px 12px rgba(0,0,0,1), -1px -1px 0 rgba(0,0,0,0.8), 1px -1px 0 rgba(0,0,0,0.8), -1px 1px 0 rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.8)' : 'none';
 
   const textGradientStyle = (useGradient && boxStyle.color !== '#000000') ? {
     background: `linear-gradient(to bottom, ${boxStyle.color} 30%, #FFFFFF 130%)`,
@@ -200,7 +208,7 @@ const PosterPreview = ({
       </div>
 
       <div className="flex items-center justify-center px-4 py-1 bg-white border-b shrink-0">
-        <span className="text-[9px] font-black uppercase text-slate-400">Thiết kế Poster</span>
+        <span className="text-[8px] font-black uppercase text-slate-400">Thiết kế Poster</span>
       </div>
 
       <div className="flex-1 flex items-center justify-center relative overflow-hidden p-2" style={{ touchAction: 'none' }}>
@@ -217,39 +225,39 @@ const PosterPreview = ({
               </div>
             </div>
 
-            {/* ─── SIDEBAR EDITOR VERSION 7.2 ─── */}
+            {/* ─── SIDEBAR EDITOR VERSION 7.3 (THU GỌN) ─── */}
             {selectedBox && (
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 bg-white/95 backdrop-blur-xl shadow-2xl rounded-[32px] border border-white/50 z-[200] w-[82px] items-center animate-in slide-in-from-right-8 duration-500">
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-1.5 bg-white/95 backdrop-blur-xl shadow-2xl rounded-[32px] border border-white/50 z-[200] w-[72px] items-center animate-in slide-in-from-right-8 duration-500">
                  {/* Bật/Tắt bóng */}
                  <button 
                    onClick={() => setShowShadow(!showShadow)}
-                   className={`w-12 h-12 rounded-full flex flex-col items-center justify-center transition-all shadow-md ${showShadow ? 'bg-blue-600 text-white shadow-blue-200' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}
+                   className={`w-11 h-11 rounded-full flex flex-col items-center justify-center transition-all shadow-md ${showShadow ? 'bg-blue-600 text-white shadow-blue-200' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}
                  >
-                    <Sparkles className="w-5 h-5" />
-                    <span className="text-[6px] font-black uppercase leading-none mt-1">BÓNG</span>
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-[5px] font-black uppercase leading-none mt-1">BÓNG</span>
                  </button>
 
                  {/* Bật/Tắt 3D */}
                  <button 
                    onClick={() => setUseGradient(!useGradient)}
-                   className={`w-12 h-12 rounded-full flex flex-col items-center justify-center transition-all shadow-md ${useGradient ? 'bg-orange-500 text-white shadow-orange-200' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}
+                   className={`w-11 h-11 rounded-full flex flex-col items-center justify-center transition-all shadow-md ${useGradient ? 'bg-orange-500 text-white shadow-orange-200' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}
                  >
-                    <Layers className="w-5 h-5" />
-                    <span className="text-[6px] font-black uppercase leading-none mt-1">3D</span>
+                    <Layers className="w-4 h-4" />
+                    <span className="text-[5px] font-black uppercase leading-none mt-1">3D</span>
                  </button>
 
                  <div className="w-full h-px bg-slate-100 my-0.5" />
 
-                 {/* Màu (Tick SIÊU NHỎ) */}
-                 <div className="grid grid-cols-2 gap-2">
+                 {/* Màu (Tick SIÊU TÍ HON) */}
+                 <div className="grid grid-cols-2 gap-1.5">
                     {colors.map(c => (
                        <button 
                          key={c.value} 
                          onClick={() => setActiveStyle(prev => ({ ...prev, color: c.value }))}
-                         className={`w-7 h-7 rounded-full border border-slate-200 shadow-sm flex items-center justify-center transition-transform active:scale-90`}
+                         className={`w-6 h-6 rounded-full border border-slate-200 shadow-sm flex items-center justify-center transition-transform active:scale-90`}
                          style={{ backgroundColor: c.value }}
                        >
-                         {activeStyle.color === c.value && <div className="w-1 h-1 rounded-full bg-white ring-1 ring-black/20" />}
+                         {activeStyle.color === c.value && <div className="w-0.5 h-0.5 rounded-full bg-white ring-[0.5px] ring-black/20" />}
                        </button>
                     ))}
                  </div>
@@ -258,33 +266,33 @@ const PosterPreview = ({
 
                  {/* Di chuyển */}
                  <div className="flex flex-col gap-1 w-full items-center">
-                    <button onClick={() => nudge(0, -5)} className="w-full h-10 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronUp className="w-6 h-6 text-blue-600" /></button>
+                    <button onClick={() => nudge(0, -5)} className="w-full h-9 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronUp className="w-5 h-5 text-blue-600" /></button>
                     <div className="flex gap-1 w-full">
-                       <button onClick={() => nudge(-5, 0)} className="w-full h-10 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronLeft className="w-6 h-6 text-blue-600" /></button>
-                       <button onClick={() => nudge(5, 0)} className="w-full h-10 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronRight className="w-6 h-6 text-blue-600" /></button>
+                       <button onClick={() => nudge(-5, 0)} className="w-full h-9 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronLeft className="w-5 h-5 text-blue-600" /></button>
+                       <button onClick={() => nudge(5, 0)} className="w-full h-9 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronRight className="w-5 h-5 text-blue-600" /></button>
                     </div>
-                    <button onClick={() => nudge(0, 5)} className="w-full h-10 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronDown className="w-6 h-6 text-blue-600" /></button>
+                    <button onClick={() => nudge(0, 5)} className="w-full h-9 bg-slate-50 rounded-xl flex items-center justify-center active:bg-blue-100 border border-slate-100"><ChevronDown className="w-5 h-5 text-blue-600" /></button>
                  </div>
 
                  <div className="w-full h-px bg-slate-100 my-0.5" />
 
-                 {/* Nút XUẤT ẢNH TRỰC TIẾP */}
+                 {/* Nút XUẤT ẢNH (NHỎ LẠI) */}
                  <button 
                     onClick={handleDownload}
                     disabled={isExporting}
-                    className="w-full h-12 bg-blue-600 text-white rounded-xl flex flex-col items-center justify-center font-black active:scale-95 shadow-lg shadow-blue-200 disabled:opacity-50"
+                    className="w-full h-10 bg-blue-600 text-white rounded-xl flex flex-col items-center justify-center font-black active:scale-95 shadow-lg shadow-blue-200 disabled:opacity-50"
                  >
-                    {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                    <span className="text-[6px] uppercase mt-1">XUẤT ẢNH</span>
+                    {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    <span className="text-[5px] uppercase mt-0.5">XUẤT</span>
                  </button>
 
-                 <button onClick={() => setSelectedBox(null)} className="w-9 h-9 bg-red-50 text-red-500 rounded-full flex items-center justify-center active:bg-red-100 mt-1">
-                    <X className="w-5 h-5" />
+                 <button onClick={() => setSelectedBox(null)} className="w-8 h-8 bg-red-50 text-red-500 rounded-full flex items-center justify-center active:bg-red-100 mt-0.5">
+                    <X className="w-4 h-4" />
                  </button>
               </div>
             )}
           </div>
-        ) : <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Đang tải...</p>}
+        ) : <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Đang tải...</p>}
       </div>
     </div>
   );

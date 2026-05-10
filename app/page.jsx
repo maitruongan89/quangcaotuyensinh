@@ -148,7 +148,7 @@ export default function PosterGenerator() {
       <div className="max-w-[1500px] mx-auto">
         <div className="mb-4 flex justify-center">
           <span className="px-4 py-1.5 bg-blue-800 text-white text-[11px] font-black rounded-full uppercase tracking-widest shadow-xl border-2 border-white/20">
-            Version 7.2 - Mai Trường An - 0905012131
+            Version 7.3 - Mai Trường An - 0905012131
           </span>
         </div>
 
@@ -201,8 +201,8 @@ export default function PosterGenerator() {
                  <img src={zoomedTemplate.image} className="w-full h-auto rounded-xl shadow-lg border-2 border-white" alt="Zoomed Template" />
               </div>
               <div className="p-6 bg-white border-t flex flex-col gap-3">
-                 <button onClick={() => handleSelectTemplate(zoomedTemplate)} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 transition-transform active:scale-95">
-                    <Check className="w-6 h-6" /> SỬ DỤNG MẪU NÀY
+                 <button onClick={() => handleSelectTemplate(zoomedTemplate)} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 transition-transform active:scale-95">
+                    <Check className="w-5 h-5" /> SỬ DỤNG MẪU NÀY
                  </button>
                  <button onClick={() => setZoomedTemplate(null)} className="w-full py-3 bg-slate-50 text-slate-500 rounded-xl text-sm font-bold">Quay lại</button>
               </div>
