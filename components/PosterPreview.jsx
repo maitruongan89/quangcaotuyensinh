@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Loader2, Move, X, Palette, Check, Type, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Sparkles, Layers } from 'lucide-react';
+import { Download, Loader2, Move, X, Palette, Check, Type, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Sparkles, Layers, Image as ImageIcon } from 'lucide-react';
 
 /* ─── Draggable Text Box ─────────────────────────────────── */
 const DraggableTextBox = ({
@@ -68,22 +68,14 @@ const DraggableTextBox = ({
     window.addEventListener('touchend', handleEnd);
   };
 
-  const nudge = (dx, dy) => {
-    setBoxStyle(prev => ({
-      ...prev,
-      left: Math.max(0, Math.min(1080 - prev.width, prev.left + dx)),
-      top: Math.max(0, Math.min(1350 - prev.height, prev.top + dy))
-    }));
-  };
-
   const showActiveState = isSelected && !isExporting;
   const handleSize = Math.max(26, 52 / (posterScale || 1)); 
 
-  // Đổ bóng chữ chuẩn nhất cho mobile
-  const shadowValue = showShadow ? 'rgba(0, 0, 0, 0.8) 0px 3px 8px' : 'none';
+  // Shadow logic TUYỆT ĐỐI CHUẨN
+  const shadowValue = showShadow ? '3px 3px 10px rgba(0,0,0,0.9), -1px -1px 0 rgba(0,0,0,0.5)' : 'none';
 
   const textGradientStyle = (useGradient && boxStyle.color !== '#000000') ? {
-    background: `linear-gradient(to bottom, ${boxStyle.color} 40%, #FFFFFF 140%)`,
+    background: `linear-gradient(to bottom, ${boxStyle.color} 30%, #FFFFFF 130%)`,
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     color: boxStyle.color 
@@ -191,7 +183,7 @@ const PosterPreview = ({
 
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-100 overflow-hidden">
-      {/* ─── POSTER ẨN (FIX MOBILE BACKGROUND) ─── */}
+      {/* ─── POSTER ẨN ─── */}
       <div style={{ position: 'fixed', left: '-10000px', top: 0, width: 1080, height: 1350, zIndex: -1000, overflow: 'visible' }}>
         <div ref={exportRef} style={{ position: 'relative', width: 1080, height: 1350, backgroundColor: '#fff', overflow: 'visible' }}>
           {selectedTemplate && (
@@ -207,11 +199,8 @@ const PosterPreview = ({
         </div>
       </div>
 
-      {/* ─── UI HEADER THU NHỎ ─── */}
-      <div className="flex items-center justify-center px-4 py-1.5 bg-white border-b shrink-0 z-30">
-        <h4 className="text-[10px] font-black uppercase tracking-tighter text-slate-400">
-           THIẾT KẾ POSTER
-        </h4>
+      <div className="flex items-center justify-center px-4 py-1 bg-white border-b shrink-0">
+        <span className="text-[9px] font-black uppercase text-slate-400">Thiết kế Poster</span>
       </div>
 
       <div className="flex-1 flex items-center justify-center relative overflow-hidden p-2" style={{ touchAction: 'none' }}>
@@ -228,9 +217,9 @@ const PosterPreview = ({
               </div>
             </div>
 
-            {/* ─── SIDEBAR EDITOR VERSION 7.1 ─── */}
+            {/* ─── SIDEBAR EDITOR VERSION 7.2 ─── */}
             {selectedBox && (
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-2 p-2 bg-white/95 backdrop-blur-xl shadow-2xl rounded-[32px] border border-white/50 z-[200] w-[80px] items-center animate-in slide-in-from-right-8 duration-500">
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 p-2 bg-white/95 backdrop-blur-xl shadow-2xl rounded-[32px] border border-white/50 z-[200] w-[82px] items-center animate-in slide-in-from-right-8 duration-500">
                  {/* Bật/Tắt bóng */}
                  <button 
                    onClick={() => setShowShadow(!showShadow)}
@@ -260,7 +249,7 @@ const PosterPreview = ({
                          className={`w-7 h-7 rounded-full border border-slate-200 shadow-sm flex items-center justify-center transition-transform active:scale-90`}
                          style={{ backgroundColor: c.value }}
                        >
-                         {activeStyle.color === c.value && <div className="w-0.5 h-0.5 rounded-full bg-white ring-1 ring-black/20" />}
+                         {activeStyle.color === c.value && <div className="w-1 h-1 rounded-full bg-white ring-1 ring-black/20" />}
                        </button>
                     ))}
                  </div>
@@ -279,11 +268,15 @@ const PosterPreview = ({
 
                  <div className="w-full h-px bg-slate-100 my-0.5" />
 
-                 {/* Cỡ chữ */}
-                 <div className="flex gap-1.5 w-full">
-                    <button onClick={() => setActiveStyle(prev => ({ ...prev, fontSize: prev.fontSize + 4 }))} className="w-full h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black active:scale-90 shadow-md">A+</button>
-                    <button onClick={() => setActiveStyle(prev => ({ ...prev, fontSize: Math.max(12, prev.fontSize - 4) }))} className="w-full h-10 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center font-black active:scale-90 border border-slate-100">A-</button>
-                 </div>
+                 {/* Nút XUẤT ẢNH TRỰC TIẾP */}
+                 <button 
+                    onClick={handleDownload}
+                    disabled={isExporting}
+                    className="w-full h-12 bg-blue-600 text-white rounded-xl flex flex-col items-center justify-center font-black active:scale-95 shadow-lg shadow-blue-200 disabled:opacity-50"
+                 >
+                    {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                    <span className="text-[6px] uppercase mt-1">XUẤT ẢNH</span>
+                 </button>
 
                  <button onClick={() => setSelectedBox(null)} className="w-9 h-9 bg-red-50 text-red-500 rounded-full flex items-center justify-center active:bg-red-100 mt-1">
                     <X className="w-5 h-5" />
